@@ -83,3 +83,59 @@
 
 ## Additional Considerations
 - **Resource limits** (CPU, memory restrictions per service)
+
+```mermaid
+flowchart TD
+  %% External World
+  FILES[Local Configs]
+  URLS[Remote Configs]
+  USER[User/Admin]
+  PROM[Prometheus]
+  LOGPIPE[Logstash/Fluentd]
+
+  %% Core Components
+  CFG["Config Loader<br/>(Viper)"]
+  DEP["Dependency Resolver"]
+  SVC["Service Manager"]
+  EXEC["Executor<br/>(os/exec + syscall)"]
+  HC["Health Checker"]
+  METRICS["Metrics Exporter"]
+  LOG["Logger<br/>(Logrus)"]
+  API["HTTP API Server"]
+  CLI["CLI Tool"]
+
+  %% Internal Event Bus
+  BUS["Event Bus<br/>(chan Event)"]
+
+  %% Config flow
+  FILES --> CFG
+  URLS --> CFG
+  CFG -->|Parsed Config| BUS
+  BUS --> DEP
+  DEP -->|Service DAG| BUS
+  BUS --> SVC
+
+  %% Control flow
+  USER --> CLI
+  USER --> API
+  CLI -->|Commands| BUS
+  API -->|Commands| BUS
+  BUS --> SVC
+
+  %% Execution flow
+  SVC -->|Start/Stop Services| EXEC
+  EXEC -->|Process Events| BUS
+
+  %% Health checks
+  SVC --> HC
+  HC -->|Health Status| BUS
+
+  %% Logging and metrics
+  EXEC -->|Logs| BUS
+  HC -->|Health Logs| BUS
+  SVC -->|Service Status| BUS
+  BUS --> LOG
+  BUS --> METRICS
+  LOG --> LOGPIPE
+  METRICS --> PROM
+```
