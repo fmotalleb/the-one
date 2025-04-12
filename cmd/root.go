@@ -43,7 +43,7 @@ containers that require a simple init system.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		println("the-one called")
 		data, err := yaml.Marshal(cfg)
-		fmt.Printf("%s\n%v\n%v", data, err, cfg.Services["simple"].Executable.Unwrap())
+		fmt.Printf("%s\n%v\n%v", data, err, cfg.Services["simple"].Lazy)
 	},
 }
 

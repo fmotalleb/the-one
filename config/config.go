@@ -82,7 +82,7 @@ func DecodeConfig(input map[string]any) (Config, error) {
 	hook := mapstructure.ComposeDecodeHookFunc(
 		mapstructure.StringToTimeDurationHookFunc(),
 		mapstructure.StringToSliceHookFunc(","),
-		option.DecodeHookFunc(), // your custom one
+		option.DecodeHookFunc(),
 	)
 
 	decoderConfig := &mapstructure.DecoderConfig{
