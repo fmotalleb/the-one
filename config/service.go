@@ -7,7 +7,8 @@ import (
 )
 
 type Service struct {
-	// service metadata (useless)
+	// service metadata
+	Name option.Some[string] `mapstructure:"name,omitempty"`
 	// Description option.Optional[string] `mapstructure:"description,omitempty"`
 
 	// process information

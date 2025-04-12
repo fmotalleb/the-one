@@ -43,7 +43,7 @@ containers that require a simple init system.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		println("the-one called")
 		data, err := yaml.Marshal(cfg)
-		fmt.Printf("%s\n%v\n%v", data, err, cfg.Services["simple"].Lazy)
+		fmt.Printf("%s\n%v\n%v", data, err, cfg.Services[0].Lazy)
 	},
 }
 
@@ -67,6 +67,8 @@ func initConfig() {
 	if err != nil {
 		panic(err)
 	}
+	data, err := yaml.Marshal(c)
+	fmt.Printf("%s\n%v", data, err)
 	cfg, err = config.DecodeConfig(c)
 	if err != nil {
 		panic(err)
