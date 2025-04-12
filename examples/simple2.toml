@@ -1,0 +1,5 @@
+[services.simple2]
+# name = ...
+executable = "sh"
+args = ["-c", "echo 'Hello from the init sh!'"]
+type = "multi-shot"

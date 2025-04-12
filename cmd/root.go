@@ -21,12 +21,14 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
+
+	"github.com/fmotalleb/the-one/config"
 )
 
 var (
 	cfgFile string
-	cfg     any
+	cfg     config.Config
 )
 
 // rootCmd represents the base command when called without any subcommands.
@@ -40,7 +42,8 @@ containers that require a simple init system.`,
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		println("the-one called")
-		fmt.Printf("%v", cfg)
+		data, err := yaml.Marshal(cfg)
+		fmt.Printf("%s\n%v\n%v", data, err, cfg.Services["simple"].Executable.Unwrap())
 	},
 }
 
@@ -60,29 +63,12 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	println("initConfig")
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
-
-		viper.AddConfigPath(home)
-		viper.AddConfigPath("./services")
-		viper.SetConfigType("toml")
-		viper.SetConfigName(".seed")
+	c, err := config.ReadAndMergeConfig(cfgFile)
+	if err != nil {
+		panic(err)
 	}
-
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
-	}
-	if err := viper.Unmarshal(&cfg); err != nil {
-		fmt.Fprintln(os.Stderr, "Error unmarshalling config file:", err)
-		os.Exit(1)
+	cfg, err = config.DecodeConfig(c)
+	if err != nil {
+		panic(err)
 	}
 }

@@ -1,7 +1,5 @@
-[service.simple]
-# name = "nu_plugin_clipboard"
-command = "bash"
-args = ["-c", "echo 'Hello from the clipboard plugin!'"]
+include = ["examples/simple2.toml"]
+[services.simple]
+executable = "bash"
+args = ["-c", "echo 'Hello from the bash init!'"]
 type = "one-shot"
-[dependency]
-name = "test"
