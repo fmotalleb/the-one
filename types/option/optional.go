@@ -10,10 +10,10 @@ type Optional[T any] struct {
 	opt Option[T]
 }
 
-func (o Optional[T]) IsSome() bool       { return o.opt.IsSome() }
-func (o Optional[T]) IsNone() bool       { return o.opt.IsNone() }
-func (o Optional[T]) Unwrap() *T         { return o.opt.Unwrap() }
-func (o Optional[T]) UnwrapOr(def *T) *T { return o.opt.UnwrapOr(def) }
+func (o Optional[T]) IsSome() bool      { return o.opt.IsSome() }
+func (o Optional[T]) IsNone() bool      { return o.opt.IsNone() }
+func (o Optional[T]) Unwrap() *T        { return o.opt.Unwrap() }
+func (o Optional[T]) UnwrapOr(def T) *T { return o.opt.UnwrapOr(def) }
 
 func (o *Optional[T]) Decode(val interface{}) error {
 	if val == nil {
