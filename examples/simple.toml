@@ -1,4 +1,9 @@
 include = ["examples/*.toml"]
+
+[[contacts]]
+name = "test"
+webhook = "https://n8n.dornicafile.ir/webhook-test/1afa51ae-8a6e-47a5-9bb2-261ec4ea4d14"
+
 [[services]]
 name = "power"
 executable = "bash"

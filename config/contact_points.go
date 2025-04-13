@@ -7,6 +7,7 @@ import (
 )
 
 type ContactPoint struct {
+	Name                option.Some[string]     `mapstructure:"name,omitempty"`
 	TelegramBotKey      option.Optional[string] `mapstructure:"telegram,omitempty"`
 	TelegramReceiverIDs option.Option[[]int64]  `mapstructure:"telegram_receivers,omitempty"`
 

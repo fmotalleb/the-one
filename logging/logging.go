@@ -1,6 +1,8 @@
 package logging
 
 import (
+	"sync"
+
 	"go.uber.org/zap"
 )
 
@@ -27,4 +29,12 @@ func BootLogger(cfg LogConfig) error {
 func GetLogger(name string) *zap.Logger {
 	logger = logger.Named(name)
 	return logger
+}
+
+func LazyLogger(name string) func() *zap.Logger {
+	return sync.OnceValue(
+		func() *zap.Logger {
+			return GetLogger(name)
+		},
+	)
 }

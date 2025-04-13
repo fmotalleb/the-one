@@ -17,14 +17,16 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 
 	"github.com/fmotalleb/the-one/config"
 	"github.com/fmotalleb/the-one/logging"
+	"github.com/fmotalleb/the-one/notification"
 )
 
 var (
@@ -42,18 +44,27 @@ It is designed to be lightweight and easy to use, making it ideal for
 containers that require a simple init system.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+	PersistentPreRunE: func(_ *cobra.Command, _ []string) error {
 		if err := logging.BootLogger(logCfg); err != nil {
 			return err
 		}
 		return nil
 	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		if err := initConfig(); err != nil {
 			return err
 		}
-		data, err := json.Marshal(cfg)
+		data, err := yaml.Marshal(cfg)
 		fmt.Printf("%s\n%v", data, err)
+
+		notif, err := notification.New(cfg)
+		notif.Process(
+			context.Background(),
+			[]string{"test"},
+			"subject-test",
+			"message-test",
+		)
+		// time.Sleep(time.Second * 20)
 		return nil
 	},
 }
@@ -100,5 +111,6 @@ func initConfig() error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

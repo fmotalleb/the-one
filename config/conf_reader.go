@@ -1,19 +1,10 @@
 package config
 
 import (
-	"sync"
-
 	"github.com/mitchellh/mapstructure"
 	"go.uber.org/zap"
 
-	"github.com/fmotalleb/the-one/logging"
 	"github.com/fmotalleb/the-one/types/option"
-)
-
-var log = sync.OnceValue(
-	func() *zap.Logger {
-		return logging.GetLogger("core.config")
-	},
 )
 
 // Decode map into Config struct.
