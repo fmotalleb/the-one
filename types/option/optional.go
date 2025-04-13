@@ -63,7 +63,7 @@ func (o Optional[T]) MarshalJSON() ([]byte, error) {
 
 func (o Optional[T]) MarshalYAML() (interface{}, error) {
 	if o.IsNone() {
-		return nil, nil // Represents YAML null
+		return nil, nil
 	}
 	return o.Unwrap(), nil
 }

@@ -17,11 +17,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 
 	"github.com/fmotalleb/the-one/config"
 	"github.com/fmotalleb/the-one/logging"
@@ -52,7 +52,7 @@ containers that require a simple init system.`,
 		if err := initConfig(); err != nil {
 			return err
 		}
-		data, err := yaml.Marshal(cfg)
+		data, err := json.Marshal(cfg)
 		fmt.Printf("%s\n%v", data, err)
 		return nil
 	},
