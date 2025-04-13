@@ -53,7 +53,7 @@ containers that require a simple init system.`,
 			return err
 		}
 		data, err := yaml.Marshal(cfg)
-		fmt.Printf("%s\n%v\n%v", data, err, cfg.Services[0].Lazy)
+		fmt.Printf("%s\n%v", data, err)
 		return nil
 	},
 }
