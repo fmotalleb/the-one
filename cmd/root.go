@@ -24,11 +24,13 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/fmotalleb/the-one/config"
+	"github.com/fmotalleb/the-one/logging"
 )
 
 var (
 	cfgFile string
 	cfg     config.Config
+	logCfg  logging.LogConfig
 )
 
 // rootCmd represents the base command when called without any subcommands.
@@ -40,10 +42,19 @@ It is designed to be lightweight and easy to use, making it ideal for
 containers that require a simple init system.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	Run: func(cmd *cobra.Command, args []string) {
-		println("the-one called")
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if err := logging.BootLogger(logCfg); err != nil {
+			return err
+		}
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := initConfig(); err != nil {
+			return err
+		}
 		data, err := yaml.Marshal(cfg)
 		fmt.Printf("%s\n%v\n%v", data, err, cfg.Services[0].Lazy)
+		return nil
 	},
 }
 
@@ -57,20 +68,37 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.seed.yaml)")
+	rootCmd.Flags().StringVar(
+		&cfgFile,
+		"config",
+		"",
+		"config file (default is $HOME/.seed.yaml)",
+	)
+
+	rootCmd.PersistentFlags().BoolVar(
+		&logCfg.Development,
+		"dev-logging",
+		false,
+		"enable verbose development logger instead of JSON",
+	)
+
+	rootCmd.PersistentFlags().BoolVar(
+		&logCfg.ShowCaller,
+		"	log-caller-info",
+		false,
+		"include caller filepath in log output",
+	)
 }
 
 // initConfig reads in config file and ENV variables if set.
-func initConfig() {
+func initConfig() error {
 	c, err := config.ReadAndMergeConfig(cfgFile)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	data, err := yaml.Marshal(c)
-	fmt.Printf("%s\n%v", data, err)
 	cfg, err = config.DecodeConfig(c)
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }

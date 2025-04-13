@@ -1,4 +1,4 @@
-include = ["examples/simple2.toml"]
+include = ["examples/*.toml"]
 [[services]]
 name = "power"
 executable = "bash"

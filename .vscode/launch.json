@@ -12,7 +12,8 @@
             "program": "${workspaceFolder}",
             "env": {},
             "args": [
-                "--config=./examples/simple.toml"
+                "--config=./examples/simple.toml",
+                "--dev-logging"
             ]
         }
     ]
