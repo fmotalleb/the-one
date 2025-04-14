@@ -3,6 +3,7 @@ package option
 import (
 	"encoding/json"
 	"errors"
+	"reflect"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -16,7 +17,7 @@ func (s Some[T]) IsNone() bool    { return false }
 func (s Some[T]) Unwrap() *T      { return s.data }
 func (s Some[T]) UnwrapOr(_ T) *T { return s.data }
 
-func (s *Some[T]) Decode(val interface{}) error {
+func (s *Some[T]) Decode(_, _ reflect.Type, val interface{}) error {
 	if val == nil {
 		return errors.New("required input is missing")
 	}
