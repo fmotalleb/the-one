@@ -7,10 +7,9 @@ import (
 )
 
 type RestartConfig struct {
-	Count       option.Optional[uint]          `mapstructure:"count,omitempty"`
-	Delay       option.Optional[time.Duration] `mapstructure:"delay,omitempty"`
-	DelayMax    option.Optional[time.Duration] `mapstructure:"delay_max,omitempty"`
-	OkExitCodes option.Optional[[]int]         `mapstructure:"ok_exit_codes,omitempty"`
+	Count    option.Optional[uint]          `mapstructure:"count,omitempty" yaml:"count"`
+	Delay    option.Optional[time.Duration] `mapstructure:"delay,omitempty" yaml:"delay"`
+	DelayMax option.Optional[time.Duration] `mapstructure:"delay_max,omitempty" yaml:"delay_max"`
 }
 
 // GetCount returns an unsigned-integer value and a boolean.
@@ -33,10 +32,4 @@ func (r *RestartConfig) GetDelayBegin() time.Duration {
 // if omitted it will return [DefaultRestartDelayMax].
 func (r *RestartConfig) GetDelayMax() time.Duration {
 	return *r.DelayMax.UnwrapOr(DefaultRestartDelayMax)
-}
-
-// GetExitCodes returns value of ok exit codes set in config.
-// if omitted it will return [DefaultRestartOkCodes] [0].
-func (r *RestartConfig) GetExitCodes() []int {
-	return *r.OkExitCodes.UnwrapOr(DefaultRestartOkCodes)
 }

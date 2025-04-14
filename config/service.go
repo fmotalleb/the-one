@@ -8,23 +8,26 @@ import (
 
 type Service struct {
 	// service metadata
-	Name option.Some[string] `mapstructure:"name,omitempty"`
+	Name option.Some[string] `mapstructure:"name,omitempty" yaml:"name"`
 	// Description option.Optional[string] `mapstructure:"description,omitempty"`
 
+	Enabled option.OptionalT[bool] `mapstructure:"enabled,omitempty" yaml:"enabled"`
+
 	// process information
-	Executable   option.Some[string]                `mapstructure:"executable,omitempty"`
-	Arguments    option.Optional[[]string]          `mapstructure:"args,omitempty"`
-	Environments option.Optional[map[string]string] `mapstructure:"env,omitempty"`
-	WorkingDir   option.Optional[[]string]          `mapstructure:"working_dir,omitempty"`
-	ProcessCount option.Optional[int]               `mapstructure:"process_count,omitempty"`
+	Executable   option.Some[string]                `mapstructure:"executable,omitempty" yaml:"executable"`
+	Arguments    option.Optional[[]string]          `mapstructure:"args,omitempty" yaml:"args"`
+	Environments option.Optional[map[string]string] `mapstructure:"env,omitempty" yaml:"env"`
+	WorkingDir   option.OptionalT[[]string]         `mapstructure:"working_dir,omitempty" yaml:"working_dir"`
+	ProcessCount option.OptionalT[int]              `mapstructure:"process_count,omitempty" yaml:"process_count"`
 
 	// process management
-	Restart option.Optional[RestartConfig] `mapstructure:"restart,omitempty"`
-	Timeout option.Optional[time.Duration] `mapstructure:"timeout,omitempty"`
-	Type    option.Optional[string]        `mapstructure:"type,omitempty"`
-	Lazy    option.Optional[bool]          `mapstructure:"lazy,omitempty"`
+	Restart     option.Optional[RestartConfig]  `mapstructure:"restart,omitempty" yaml:"restart"`
+	Timeout     option.OptionalT[time.Duration] `mapstructure:"timeout,omitempty" yaml:"timeout"`
+	Type        option.Optional[ServiceType]    `mapstructure:"type,omitempty" yaml:"type"`
+	Lazy        option.Optional[bool]           `mapstructure:"lazy,omitempty" yaml:"lazy"`
+	OkExitCodes option.OptionalT[[]int]         `mapstructure:"ok_exit_codes,omitempty" yaml:"ok_exit_codes"`
 
 	// dependency management
-	Dependencies option.Optional[[]string] `mapstructure:"dependencies,omitempty"`
-	Dependents   option.Optional[[]string] `mapstructure:"dependents,omitempty"`
+	Dependencies option.Optional[[]string] `mapstructure:"dependencies,omitempty" yaml:"dependencies"`
+	Dependents   option.Optional[[]string] `mapstructure:"dependents,omitempty" yaml:"dependents"`
 }

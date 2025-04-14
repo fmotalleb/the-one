@@ -13,12 +13,12 @@ import (
 
 var log = logging.LazyLogger("notification")
 
-type Kernel struct {
+type Service struct {
 	handlers map[string][]notify.Notifier
 	bus      chan Notification
 }
 
-func New(cfg config.Config) (*Kernel, error) {
+func New(cfg config.Config) (*Service, error) {
 	log := log().Named("New")
 	log.Info("Initializing Kernel")
 
@@ -42,7 +42,7 @@ func New(cfg config.Config) (*Kernel, error) {
 		log.Debug("Added handlers", zap.String("name", name), zap.Int("count", len(services)))
 	}
 
-	kernel := new(Kernel)
+	kernel := new(Service)
 	kernel.handlers = hb
 	kernel.bus = make(chan Notification)
 	log.Info("Kernel initialized successfully")
@@ -50,17 +50,17 @@ func New(cfg config.Config) (*Kernel, error) {
 	return kernel, nil
 }
 
-func (k *Kernel) initWorker() {
+func (k *Service) initWorker() {
 	for n := range k.bus {
 		go k.handleNotification(n)
 	}
 }
 
-func (k *Kernel) handleNotification(n Notification) {
+func (k *Service) handleNotification(n Notification) {
 	log := log().Named("Handle")
-	log.Debug("handling notification", zap.String("subject", n.Subject), zap.Strings("contacts", n.Contacts))
+	log.Debug("handling notification", zap.String("subject", n.Subject), zap.Strings("contacts", n.ContactPoints))
 
-	for _, name := range n.Contacts {
+	for _, name := range n.ContactPoints {
 		handlers, ok := k.handlers[name]
 		if !ok {
 			log.Warn("no handlers found for contact", zap.String("contact", name))
@@ -85,15 +85,15 @@ func (k *Kernel) handleNotification(n Notification) {
 	}
 }
 
-func (k *Kernel) Process(
+func (k *Service) Process(
 	ctx context.Context,
-	contacts []string,
+	contactsPoints []string,
 	subject, message string,
 ) {
 	k.bus <- Notification{
-		Ctx:      ctx,
-		Contacts: contacts,
-		Subject:  subject,
-		Message:  message,
+		Ctx:           ctx,
+		ContactPoints: contactsPoints,
+		Subject:       subject,
+		Message:       message,
 	}
 }

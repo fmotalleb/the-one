@@ -10,7 +10,9 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "env": {},
+            "env": {
+                "ENABLED": "true"
+            },
             "args": [
                 "--config=./examples/simple.toml",
                 "--dev-logging"
