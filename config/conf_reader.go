@@ -4,7 +4,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"go.uber.org/zap"
 
-	"github.com/fmotalleb/the-one/types/option"
+	"github.com/fmotalleb/the-one/types/decodable"
 )
 
 // Decode map into Config struct.
@@ -14,7 +14,7 @@ func DecodeConfig(input map[string]any) (Config, error) {
 	hook := mapstructure.ComposeDecodeHookFunc(
 		mapstructure.StringToTimeDurationHookFunc(),
 		mapstructure.StringToSliceHookFunc(","),
-		option.DecodeHookFunc(),
+		decodable.DecodeHookFunc(),
 	)
 
 	decoderConfig := &mapstructure.DecoderConfig{
