@@ -109,18 +109,14 @@ func toInt(v interface{}) int {
 	case float64:
 		return int(val)
 	case string:
-		// Try int first
 		if i, err := strconv.Atoi(val); err == nil {
 			return i
 		}
-		// Try float fallback
 		if f, err := strconv.ParseFloat(val, 64); err == nil {
 			return int(f)
 		}
 		panic(fmt.Errorf("cannot convert string to int: %s", val))
-		return 0
 	default:
 		panic(fmt.Errorf("unsupported type: %T", val))
-		return 0
 	}
 }
