@@ -28,6 +28,7 @@ type Service struct {
 	OkExitCodes option.OptionalT[[]int]         `mapstructure:"ok_exit_codes,omitempty" yaml:"ok_exit_codes"`
 
 	// dependency management
-	Dependencies option.Optional[[]string] `mapstructure:"dependencies,omitempty" yaml:"dependencies"`
+	Requirements option.Optional[[]string] `mapstructure:"requires,omitempty" yaml:"requires"`
+	After        option.Optional[[]string] `mapstructure:"After,omitempty" yaml:"After"`
 	Dependents   option.Optional[[]string] `mapstructure:"dependents,omitempty" yaml:"dependents"`
 }

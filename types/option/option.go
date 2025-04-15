@@ -13,3 +13,10 @@ func New[T any](data *T) Option[T] {
 	}
 	return &Some[T]{data: data}
 }
+
+func NewOptional[T any](data *T) Optional[T] {
+	opt := New(data)
+	return Optional[T]{
+		opt: opt,
+	}
+}
