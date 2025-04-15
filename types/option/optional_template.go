@@ -37,12 +37,17 @@ func (o OptionalT[T]) UnwrapOr(def T) *T {
 	return o.opt.UnwrapOr(def)
 }
 
-func (o *OptionalT[T]) Decode(_, to reflect.Type, val interface{}) error {
-	if val == nil {
+func (o *OptionalT[T]) Decode(_, to reflect.Type, template interface{}) error {
+	if template == nil {
 		o.opt = &None[T]{}
 		return nil
 	}
-	parsed, err := mapper[T](to, val)
+
+	raw, err := applyTemplate(template)
+	if err != nil {
+		return err
+	}
+	parsed, err := transform[T](to, raw)
 	if err != nil {
 		return err
 	}
@@ -55,19 +60,22 @@ func (o *OptionalT[T]) Decode(_, to reflect.Type, val interface{}) error {
 	return nil
 }
 
-func mapper[T any](to reflect.Type, val interface{}) (T, error) {
-	var zero T
-
+func applyTemplate(val interface{}) (string, error) {
 	strVal := fmt.Sprintf("%v", val)
 	strVal, err := template.EvaluateTemplate(strVal, map[string]any{})
 	if err != nil {
-		return zero, err
+		return "", err
 	}
 
 	// If T implements TextUnmarshaler
+	return strVal, nil
+}
+
+func transform[T any](to reflect.Type, strVal string) (T, error) {
 	if to.Implements(reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()) {
 		v := reflect.New(to).Interface().(encoding.TextUnmarshaler)
 		if err := v.UnmarshalText([]byte(strVal)); err != nil {
+			var zero T
 			return zero, err
 		}
 		return reflect.ValueOf(v).Elem().Interface().(T), nil
@@ -81,6 +89,7 @@ func mapper[T any](to reflect.Type, val interface{}) (T, error) {
 
 	// Fallback: try decoding wrapped string
 	if err := mapstructure.Decode(strVal, &target); err != nil {
+		var zero T
 		return zero, err
 	}
 	return target, nil
