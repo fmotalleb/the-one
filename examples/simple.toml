@@ -7,6 +7,6 @@ webhook = "https://n8n.dornicafile.ir/webhook-test/1afa51ae-8a6e-47a5-9bb2-261ec
 [[services]]
 name = "power"
 executable = "bash"
-enabled = '{{ env "ENABLED" }}'
+enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
 args = ["-c", "echo 'Hello from the bash init!'"]
 type = "one-shot"

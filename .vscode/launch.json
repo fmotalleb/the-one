@@ -11,7 +11,8 @@
             "mode": "auto",
             "program": "${workspaceFolder}",
             "env": {
-                "ENABLED": "true"
+                "ENABLED": "true",
+                "TEST_JSON": "ewogICJmaWVsZCI6IDE1Cn0="
             },
             "args": [
                 "--config=./examples/simple.toml",
