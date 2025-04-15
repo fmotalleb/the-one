@@ -1,12 +1,5 @@
 include = ["examples/*.toml"]
 
-[[contacts]]
-name = "test"
-smtp_host = "mail.dornica.net:587"
-smtp_user = "n.khorsand@dornica.net"
-smtp_pass = "cM8J5hpngMuwNjMbGPYP"
-smtp_receivers = ["devops@dornica.net"]
-
 [[services]]
 name = "simple"
 executable = "bash"
