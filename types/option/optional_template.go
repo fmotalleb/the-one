@@ -12,34 +12,12 @@ import (
 )
 
 type OptionalT[T any] struct {
-	opt Option[T]
-}
-
-func (o OptionalT[T]) IsSome() bool {
-	return o.opt != nil && o.opt.IsSome()
-}
-
-func (o OptionalT[T]) IsNone() bool {
-	return o.opt == nil || o.opt.IsNone()
-}
-
-func (o OptionalT[T]) Unwrap() *T {
-	if o.opt == nil {
-		return new(T)
-	}
-	return o.opt.Unwrap()
-}
-
-func (o OptionalT[T]) UnwrapOr(def T) *T {
-	if o.opt == nil {
-		return &def
-	}
-	return o.opt.UnwrapOr(def)
+	Optional[T]
 }
 
 func (o *OptionalT[T]) Decode(_, to reflect.Type, template interface{}) error {
 	if template == nil {
-		o.opt = &None[T]{}
+		o.Option = &None[T]{}
 		return nil
 	}
 
@@ -56,7 +34,7 @@ func (o *OptionalT[T]) Decode(_, to reflect.Type, template interface{}) error {
 		return err
 	}
 
-	o.opt = New(&target)
+	o.Option = New(&target)
 	return nil
 }
 
@@ -93,25 +71,4 @@ func transform[T any](to reflect.Type, strVal string) (T, error) {
 		return zero, err
 	}
 	return target, nil
-}
-
-func (o OptionalT[T]) Encode() (interface{}, error) {
-	if o.IsNone() {
-		return nil, nil
-	}
-	return o.Unwrap(), nil
-}
-
-func (o OptionalT[T]) MarshalJSON() ([]byte, error) {
-	if o.IsNone() {
-		return []byte("null"), nil
-	}
-	return json.Marshal(o.Unwrap())
-}
-
-func (o OptionalT[T]) MarshalYAML() (interface{}, error) {
-	if o.IsNone() {
-		return nil, nil
-	}
-	return o.Unwrap(), nil
 }

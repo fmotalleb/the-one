@@ -29,8 +29,12 @@ func updateDependencyList(c *Config, dependencies map[string][]string) []Service
 	services := make([]Service, len(c.Services))
 	for index, s := range c.Services {
 		dependencies := dependencies[*s.Name.Unwrap()]
-		s.After = option.NewOptional(&dependencies)
-		s.Dependents = option.NewOptional[[]string](nil)
+		after := make([]option.Optional[string], len(dependencies))
+		for index, item := range dependencies {
+			after[index] = option.NewOptional(&item)
+		}
+		s.After = after
+		s.Dependents = []option.Optional[string]{}
 		services[index] = s
 	}
 	return services
@@ -40,10 +44,11 @@ func generateDependencyList(c *Config) map[string][]string {
 	dependencies := map[string][]string{}
 	for _, s := range c.Services {
 		name := *s.Name.Unwrap()
+		after := option.UnwrapAll(s.After)
+		dependencies[name] = append(dependencies[name], after...)
 
-		dependencies[name] = append(dependencies[name], *s.After.UnwrapOr([]string{})...)
-
-		for _, d := range *s.Dependents.UnwrapOr([]string{}) {
+		dependents := option.UnwrapAll(s.Dependents)
+		for _, d := range dependents {
 			dependencies[d] = append(dependencies[d], name)
 		}
 	}

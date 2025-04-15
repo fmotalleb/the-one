@@ -9,14 +9,14 @@ import (
 type ContactPoint struct {
 	Name                option.Some[string]       `mapstructure:"name,omitempty"  yaml:"name"`
 	TelegramBotKey      option.OptionalT[string]  `mapstructure:"telegram,omitempty"  yaml:"telegram"`
-	TelegramReceiverIDs option.OptionalT[[]int64] `mapstructure:"telegram_receivers,omitempty"  yaml:"telegram_receivers"`
+	TelegramReceiverIDs []option.OptionalT[int64] `mapstructure:"telegram_receivers,omitempty"  yaml:"telegram_receivers"`
 
 	HTTPWebhookAddress option.OptionalT[string] `mapstructure:"webhook,omitempty"  yaml:"webhook"`
 
 	// Generic http flags
 	HTTPMethod      option.OptionalT[string]              `mapstructure:"http_method,omitempty"  yaml:"http_method"`
 	HTTPContentType option.OptionalT[string]              `mapstructure:"http_content_type,omitempty"  yaml:"http_content_type"`
-	HTTPHeaders     option.OptionalT[map[string][]string] `mapstructure:"http_headers,omitempty"  yaml:"http_headers"`
+	HTTPHeaders     map[string][]option.OptionalT[string] `mapstructure:"http_headers,omitempty"  yaml:"http_headers"`
 
 	// Mail Configs
 	SMTPHost      option.OptionalT[string]   `mapstructure:"smtp_host,omitempty"  yaml:"smtp_host"`
@@ -28,9 +28,16 @@ type ContactPoint struct {
 }
 
 func (c ContactPoint) GetHTTPHeaders() http.Header {
-	if c.HTTPHeaders.IsNone() {
-		return http.Header{}
+	result := http.Header{}
+	if len(c.HTTPHeaders) == 0 {
+		return result
 	}
-	headers := *c.HTTPHeaders.Unwrap()
-	return headers
+	for key, values := range c.HTTPHeaders {
+		realValues := make([]string, len(values))
+		for index, item := range values {
+			realValues[index] = *item.Unwrap()
+		}
+		result[key] = realValues
+	}
+	return result
 }

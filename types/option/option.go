@@ -17,6 +17,6 @@ func New[T any](data *T) Option[T] {
 func NewOptional[T any](data *T) Optional[T] {
 	opt := New(data)
 	return Optional[T]{
-		opt: opt,
+		Option: opt,
 	}
 }

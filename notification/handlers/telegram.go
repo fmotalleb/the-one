@@ -18,9 +18,12 @@ func telegramHandler(cfg config.ContactPoint) (notify.Notifier, error) {
 		return nil, nil
 	}
 	botToken := *cfg.TelegramBotKey.Unwrap()
-	receivers := *cfg.TelegramReceiverIDs.UnwrapOr([]int64{})
-	if cfg.TelegramReceiverIDs.IsNone() && len(receivers) == 0 {
+	receivers := make([]int64, len(cfg.TelegramReceiverIDs))
+	if len(cfg.TelegramReceiverIDs) == 0 {
 		return nil, errors.New("telegram bot key was set but no receiver is set")
+	}
+	for index, item := range cfg.TelegramReceiverIDs {
+		receivers[index] = *item.Unwrap()
 	}
 	handler, err := telegram.New(botToken)
 	if err != nil {
