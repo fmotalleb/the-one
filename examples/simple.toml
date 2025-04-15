@@ -2,7 +2,10 @@ include = ["examples/*.toml"]
 
 [[contacts]]
 name = "test"
-webhook = "https://n8n.dornicafile.ir/webhook-test/1afa51ae-8a6e-47a5-9bb2-261ec4ea4d14"
+smtp_host = "mail.dornica.net:587"
+smtp_user = "n.khorsand@dornica.net"
+smtp_pass = "cM8J5hpngMuwNjMbGPYP"
+smtp_receivers = ["devops@dornica.net"]
 
 [[services]]
 name = "simple"

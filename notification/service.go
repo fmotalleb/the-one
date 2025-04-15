@@ -42,12 +42,12 @@ func New(cfg config.Config) (*Service, error) {
 		log.Debug("Added handlers", zap.String("name", name), zap.Int("count", len(services)))
 	}
 
-	kernel := new(Service)
-	kernel.handlers = hb
-	kernel.bus = make(chan Notification)
+	service := new(Service)
+	service.handlers = hb
+	service.bus = make(chan Notification)
 	log.Info("Kernel initialized successfully")
-	go kernel.initWorker()
-	return kernel, nil
+	go service.initWorker()
+	return service, nil
 }
 
 func (k *Service) initWorker() {

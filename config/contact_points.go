@@ -17,6 +17,14 @@ type ContactPoint struct {
 	HTTPMethod      option.OptionalT[string]              `mapstructure:"http_method,omitempty"  yaml:"http_method"`
 	HTTPContentType option.OptionalT[string]              `mapstructure:"http_content_type,omitempty"  yaml:"http_content_type"`
 	HTTPHeaders     option.OptionalT[map[string][]string] `mapstructure:"http_headers,omitempty"  yaml:"http_headers"`
+
+	// Mail Configs
+	SMTPHost      option.OptionalT[string]   `mapstructure:"smtp_host,omitempty"  yaml:"smtp_host"`
+	SMTPHostName  option.OptionalT[string]   `mapstructure:"smtp_hostname,omitempty"  yaml:"smtp_hostname"`
+	SMTPUser      option.OptionalT[string]   `mapstructure:"smtp_user,omitempty"  yaml:"smtp_user"`
+	SMTPPass      option.OptionalT[string]   `mapstructure:"smtp_pass,omitempty"  yaml:"smtp_pass"`
+	SMTPFrom      option.OptionalT[string]   `mapstructure:"smtp_from,omitempty"  yaml:"smtp_from"`
+	SMTPReceivers []option.OptionalT[string] `mapstructure:"smtp_receivers,omitempty"  yaml:"smtp_receivers"`
 }
 
 func (c ContactPoint) GetHTTPHeaders() http.Header {

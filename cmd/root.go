@@ -17,14 +17,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
 	"github.com/fmotalleb/the-one/config"
 	"github.com/fmotalleb/the-one/logging"
+	"github.com/fmotalleb/the-one/notification"
 )
 
 var (
@@ -68,14 +71,17 @@ containers that require a simple init system.`,
 		}
 		fmt.Printf("%s\n", data)
 
-		// notif, err := notification.New(cfg)
-		// notif.Process(
-		// 	context.Background(),
-		// 	[]string{"test"},
-		// 	"subject-test",
-		// 	"message-test",
-		// )
-		// time.Sleep(time.Second * 20)
+		notif, err := notification.New(cfg)
+		if err != nil {
+			return err
+		}
+		notif.Process(
+			context.Background(),
+			[]string{"test"},
+			"subject-test",
+			"message-test",
+		)
+		time.Sleep(time.Second * 20)
 		return nil
 	},
 }
