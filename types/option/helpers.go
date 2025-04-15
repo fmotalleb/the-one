@@ -7,3 +7,11 @@ func UnwrapAll[T any, O Option[T]](items []O) []T {
 	}
 	return result
 }
+
+func WrapAll[T any, O Optional[T]](items []T) []O {
+	result := make([]O, len(items))
+	for index, item := range items {
+		result[index] = any(NewOptional(&item)).(O)
+	}
+	return result
+}

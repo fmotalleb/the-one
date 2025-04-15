@@ -13,9 +13,6 @@ type Config struct {
 }
 
 func (c *Config) GetServices() ([]Service, error) {
-	// l := log().Named("GetServices")
-	// sm := map[string]Service{}
-
 	return reshapeServices(c), nil
 }
 
@@ -29,10 +26,7 @@ func updateDependencyList(c *Config, dependencies map[string][]string) []Service
 	services := make([]Service, len(c.Services))
 	for index, s := range c.Services {
 		dependencies := dependencies[*s.Name.Unwrap()]
-		after := make([]option.Optional[string], len(dependencies))
-		for index, item := range dependencies {
-			after[index] = option.NewOptional(&item)
-		}
+		after := option.WrapAll(dependencies)
 		s.After = after
 		s.Dependents = []option.Optional[string]{}
 		services[index] = s
