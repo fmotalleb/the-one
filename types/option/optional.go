@@ -5,42 +5,31 @@ import (
 	"reflect"
 
 	"github.com/mitchellh/mapstructure"
+
+	"github.com/fmotalleb/the-one/types/decodable"
 )
 
 type Optional[T any] struct {
 	Option[T]
 }
 
-// func (o Optional[T]) IsSome() bool {
-// 	return o.opt != nil && o.opt.IsSome()
-// }
-
-// func (o Optional[T]) IsNone() bool {
-// 	return o.opt == nil || o.opt.IsNone()
-// }
-
-// func (o Optional[T]) Unwrap() *T {
-// 	if o.opt == nil {
-// 		return new(T)
-// 	}
-// 	return o.opt.Unwrap()
-// }
-
-// func (o Optional[T]) UnwrapOr(def T) *T {
-// 	if o.opt == nil {
-// 		return &def
-// 	}
-// 	return o.opt.UnwrapOr(def)
-// }
-
-func (o *Optional[T]) Decode(_, _ reflect.Type, val interface{}) error {
+func (o *Optional[T]) Decode(from, to reflect.Type, val interface{}) error {
 	if val == nil {
 		o.Option = &None[T]{}
 		return nil
 	}
 	var target T
-	if err := mapstructure.Decode(val, &target); err != nil {
-		return err
+	result, err := decodable.UsingParserOf[T](val)
+	if result != nil {
+		if err != nil {
+			return err
+		}
+		target = *result
+	} else {
+		err := mapstructure.Decode(val, &target)
+		if err != nil {
+			return err
+		}
 	}
 
 	o.Option = New(&target)

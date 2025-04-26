@@ -29,7 +29,7 @@ type Service struct {
 	Environments map[string]option.Optional[string] `mapstructure:"env,omitempty" yaml:"env"`
 
 	// Acts like list of .env files for the service
-	EnvironmentFile []option.Optional[string] `mapstructure:"env,omitempty" yaml:"env"`
+	EnvironmentFile []option.Optional[string] `mapstructure:"env_file,omitempty" yaml:"env_file"`
 
 	// Passes environment variables of the init system to child service.
 	// Unset or null acts like false.
