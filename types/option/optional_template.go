@@ -9,6 +9,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/fmotalleb/the-one/template"
+	"github.com/fmotalleb/the-one/types/decodable"
 )
 
 type OptionalT[T any] struct {
@@ -30,7 +31,8 @@ func (o *OptionalT[T]) Decode(_, to reflect.Type, template interface{}) error {
 		return err
 	}
 	var target T
-	if err := mapstructure.Decode(parsed, &target); err != nil {
+
+	if err := decodable.Decode(parsed, &target); err != nil {
 		return err
 	}
 
@@ -71,4 +73,32 @@ func transform[T any](to reflect.Type, strVal string) (T, error) {
 		return zero, err
 	}
 	return target, nil
+}
+
+func (o OptionalT[T]) IsSome() bool {
+	if o.Option == nil {
+		return false
+	}
+	return o.Option.IsSome()
+}
+
+func (o OptionalT[T]) IsNone() bool {
+	if o.Option == nil {
+		return true
+	}
+	return o.Option.IsNone()
+}
+
+func (o OptionalT[T]) Unwrap() *T {
+	if o.Option == nil {
+		panic("called Unwrap on a None value")
+	}
+	return o.Option.Unwrap()
+}
+
+func (o OptionalT[T]) UnwrapOr(def T) *T {
+	if o.Option == nil {
+		return &def
+	}
+	return o.Option.UnwrapOr(def)
 }

@@ -2,7 +2,11 @@ package decodable
 
 import (
 	"reflect"
+
+	"github.com/fmotalleb/the-one/logging"
 )
+
+var log = logging.LazyLogger("decodable")
 
 type Decodable interface {
 	Decode(reflect.Type, reflect.Type, interface{}) error

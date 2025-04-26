@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"reflect"
 
-	"github.com/mitchellh/mapstructure"
-
 	"github.com/fmotalleb/the-one/types/decodable"
 )
 
@@ -26,7 +24,7 @@ func (o *Optional[T]) Decode(from, to reflect.Type, val interface{}) error {
 		}
 		target = *result
 	} else {
-		err := mapstructure.Decode(val, &target)
+		err := decodable.Decode(val, &target)
 		if err != nil {
 			return err
 		}
@@ -55,4 +53,32 @@ func (o *Optional[T]) MarshalYAML() (interface{}, error) {
 		return nil, nil
 	}
 	return o.Unwrap(), nil
+}
+
+func (o Optional[T]) IsSome() bool {
+	if o.Option == nil {
+		return false
+	}
+	return o.Option.IsSome()
+}
+
+func (o Optional[T]) IsNone() bool {
+	if o.Option == nil {
+		return true
+	}
+	return o.Option.IsNone()
+}
+
+func (o Optional[T]) Unwrap() *T {
+	if o.Option == nil {
+		panic("called Unwrap on a None value")
+	}
+	return o.Option.Unwrap()
+}
+
+func (o Optional[T]) UnwrapOr(def T) *T {
+	if o.Option == nil {
+		return &def
+	}
+	return o.Option.UnwrapOr(def)
 }
