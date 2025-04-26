@@ -6,3 +6,4 @@ executable = "bash"
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
 args = ["-c", "echo 'Hello from the bash init!'"]
 type = "one-shot"
+# restart.count = 15

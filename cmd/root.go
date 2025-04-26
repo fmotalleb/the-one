@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
@@ -27,7 +26,6 @@ import (
 
 	"github.com/fmotalleb/the-one/config"
 	"github.com/fmotalleb/the-one/logging"
-	"github.com/fmotalleb/the-one/notification"
 )
 
 var (
@@ -70,17 +68,10 @@ containers that require a simple init system.`,
 			return err
 		}
 		fmt.Printf("%s\n", data)
-
-		notif, err := notification.New(cfg)
-		if err != nil {
-			return err
+		r := reshape[0].GetRestart()
+		for i := uint(0); i < 100; i++ {
+			println(r.GetDelay(i))
 		}
-		notif.Process(
-			context.Background(),
-			[]string{"test"},
-			"subject-test",
-			"message-test",
-		)
 		time.Sleep(time.Second * 20)
 		return nil
 	},
