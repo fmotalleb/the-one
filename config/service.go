@@ -77,3 +77,31 @@ type Service struct {
 	// This field is cleared before execution.
 	Dependents []option.Optional[string] `mapstructure:"dependents,omitempty" yaml:"dependents"`
 }
+
+func (s *Service) GetName() string {
+	if s.Name.IsSome() {
+		return *s.Name.Unwrap()
+	}
+	return ""
+}
+
+func (s *Service) GetType() ServiceType {
+	if s.Type.IsSome() {
+		return *s.Type.Unwrap()
+	}
+	return OngoingService
+}
+
+func (s *Service) GetProcessCount() int {
+	if s.ProcessCount.IsSome() {
+		return *s.ProcessCount.Unwrap()
+	}
+	return DefaultProcessCount
+}
+
+func (s *Service) GetRestart() RestartConfig {
+	if s.Restart.IsSome() {
+		return *s.Restart.Unwrap()
+	}
+	return DefaultRestartConfig
+}

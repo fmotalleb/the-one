@@ -1,12 +1,28 @@
 package config
 
-import "time"
+import (
+	"time"
+
+	"github.com/fmotalleb/the-one/types/option"
+)
 
 const (
 	DefaultRestartDelayBegin = time.Second
-	DefaultRestartDelayMax   = time.Second * 15
+	DefaultRestartDelayMax   = time.Second * 16
 	DefaultServiceType       = OngoingService
 	DefaultProcessCount      = 1
+
+	restartDelayPowerBase         = 2
+	restartMaxCalculableIteration = 10
+	restartAbsoluteMax            = uint(1000000)
 )
 
-var DefaultRestartOkCodes = []int{0}
+var (
+	DefaultRestartOkCodes = []int{0}
+
+	DefaultRestartConfig = RestartConfig{
+		Count:    option.Optional[uint]{},
+		Delay:    option.Optional[time.Duration]{},
+		DelayMax: option.Optional[time.Duration]{},
+	}
+)
