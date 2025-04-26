@@ -17,16 +17,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"encoding/json"
-	"fmt"
 	"os"
-	"time"
 
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 
 	"github.com/fmotalleb/the-one/config"
+	"github.com/fmotalleb/the-one/controller"
 	"github.com/fmotalleb/the-one/logging"
+	"github.com/fmotalleb/the-one/system"
 )
 
 var (
@@ -54,27 +52,8 @@ containers that require a simple init system.`,
 		if err := initConfig(); err != nil {
 			return err
 		}
-		data, err := yaml.Marshal(cfg)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Printf("%s\n", data)
 
-		reshape, err := cfg.GetServices()
-		if err != nil {
-			return err
-		}
-		data, err = json.Marshal(reshape)
-		if err != nil {
-			return err
-		}
-		fmt.Printf("%s\n", data)
-		r := reshape[0].GetRestart()
-		for i := uint(0); i < 100; i++ {
-			println(r.GetDelay(i))
-		}
-		time.Sleep(time.Second * 20)
-		return nil
+		return controller.Boot(system.NewSystemContext(), &cfg)
 	},
 }
 
