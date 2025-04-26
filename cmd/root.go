@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -63,7 +64,7 @@ containers that require a simple init system.`,
 		if err != nil {
 			return err
 		}
-		data, err = yaml.Marshal(reshape)
+		data, err = json.Marshal(reshape)
 		if err != nil {
 			return err
 		}

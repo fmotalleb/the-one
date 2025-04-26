@@ -41,14 +41,14 @@ func (o *Optional[T]) Encode() (interface{}, error) {
 	return o.Unwrap(), nil
 }
 
-func (o *Optional[T]) MarshalJSON() ([]byte, error) {
+func (o Optional[T]) MarshalJSON() ([]byte, error) {
 	if o.IsNone() {
 		return []byte("null"), nil
 	}
 	return json.Marshal(o.Unwrap())
 }
 
-func (o *Optional[T]) MarshalYAML() (interface{}, error) {
+func (o Optional[T]) MarshalYAML() (interface{}, error) {
 	if o.IsNone() {
 		return nil, nil
 	}
