@@ -2,4 +2,4 @@ package controller
 
 import "errors"
 
-var EngineBootError = errors.New("controller failed to boot")
+var ErrEngineBoot = errors.New("controller failed to boot")

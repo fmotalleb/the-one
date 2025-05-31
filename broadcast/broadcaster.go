@@ -1,5 +1,9 @@
 package broadcast
 
+type Subscription[T any] interface {
+	Subscribe() <-chan T
+}
+
 type Broadcaster[T any] struct {
 	subscribers []chan T
 }
@@ -11,6 +15,7 @@ func NewBroadcaster[T any]() *Broadcaster[T] {
 }
 
 func (b *Broadcaster[T]) Subscribe() <-chan T {
+	// This method has an overhead where it does not release nor reuse its subscribers
 	ch := make(chan T, 1)
 	b.subscribers = append(b.subscribers, ch)
 	return ch

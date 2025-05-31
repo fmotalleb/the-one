@@ -13,7 +13,7 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	for _, t := range cfg.Templates {
 		if err := renderer.RenderTemplates(&t); err != nil && t.GetIsFatal() {
 			return errors.Join(
-				EngineBootError,
+				ErrEngineBoot,
 				err,
 			)
 		}
