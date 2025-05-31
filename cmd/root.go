@@ -29,7 +29,6 @@ import (
 
 var (
 	cfgFile string
-	cfg     config.Config
 	logCfg  logging.LogConfig
 )
 
@@ -49,11 +48,11 @@ containers that require a simple init system.`,
 		return nil
 	},
 	RunE: func(_ *cobra.Command, _ []string) error {
-		if err := initConfig(); err != nil {
+		cfg, err := readConfig(cfgFile)
+		if err != nil {
 			return err
 		}
-
-		return controller.Boot(system.NewSystemContext(), &cfg)
+		return controller.Boot(system.NewSystemContext(), cfg)
 	},
 }
 
@@ -89,16 +88,16 @@ func init() {
 	)
 }
 
-// initConfig reads in config file and ENV variables if set.
-func initConfig() error {
+// readConfig reads in config file and ENV variables if set.
+func readConfig(cfgFile string) (*config.Config, error) {
 	c, err := config.ReadAndMergeConfig(cfgFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	cfg, err = config.DecodeConfig(c)
+	cfg, err := config.DecodeConfig(c)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &cfg, nil
 }
