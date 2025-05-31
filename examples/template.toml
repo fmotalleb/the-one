@@ -1,0 +1,6 @@
+
+[[templates]]
+source = "examples/templates/"
+destination = "examples/compiled/"
+mode = 0x644
+overwrite = true

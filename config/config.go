@@ -8,8 +8,9 @@ import (
 var log = logging.LazyLogger("core.config")
 
 type Config struct {
-	Services []Service      `mapstructure:"services,omitempty"`
-	Contacts []ContactPoint `mapstructure:"contacts,omitempty"`
+	Services  []Service      `mapstructure:"services,omitempty"`
+	Templates []Template     `mapstructure:"templates,omitempty"`
+	Contacts  []ContactPoint `mapstructure:"contacts,omitempty"`
 }
 
 func (c *Config) GetServices() ([]Service, error) {

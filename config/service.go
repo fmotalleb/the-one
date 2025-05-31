@@ -79,29 +79,17 @@ type Service struct {
 }
 
 func (s *Service) GetName() string {
-	if s.Name.IsSome() {
-		return *s.Name.Unwrap()
-	}
-	return ""
+	return *s.Name.UnwrapOr("")
 }
 
 func (s *Service) GetType() ServiceType {
-	if s.Type.IsSome() {
-		return *s.Type.Unwrap()
-	}
-	return OngoingService
+	return *s.Type.UnwrapOr(OngoingService)
 }
 
 func (s *Service) GetProcessCount() int {
-	if s.ProcessCount.IsSome() {
-		return *s.ProcessCount.Unwrap()
-	}
-	return DefaultProcessCount
+	return *s.ProcessCount.UnwrapOr(DefaultProcessCount)
 }
 
 func (s *Service) GetRestart() RestartConfig {
-	if s.Restart.IsSome() {
-		return *s.Restart.Unwrap()
-	}
-	return DefaultRestartConfig
+	return *s.Restart.UnwrapOr(DefaultRestartConfig)
 }

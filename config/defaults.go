@@ -15,6 +15,12 @@ const (
 	restartDelayPowerBase         = 2
 	restartMaxCalculableIteration = 10
 	restartAbsoluteMax            = uint(1000000)
+
+	DefaultTemplateExtension = ".template"
+	DefaultTemplateOverWrite = true
+	DefaultTemplateFileMod   = 0o644
+	DefaultTemplateDirMod    = 0o755
+	DefaultTemplateFatality  = true
 )
 
 var (
