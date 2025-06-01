@@ -49,29 +49,29 @@ func (t *Template) GetSourceDirectory() string {
 }
 
 func (t *Template) GetFinalDirectory() string {
-	return *t.TargetDirectory.UnwrapOr(t.GetSourceDirectory())
+	return t.TargetDirectory.UnwrapOr(t.GetSourceDirectory())
 }
 
 func (t *Template) GetExtension() string {
-	return *t.Extension.UnwrapOr(DefaultTemplateExtension)
+	return t.Extension.UnwrapOr(DefaultTemplateExtension)
 }
 
 func (t *Template) IsEnabled() bool {
-	return *t.Enabled.UnwrapOr(true)
+	return t.Enabled.UnwrapOr(true)
 }
 
 func (t *Template) ShouldOverwrite() bool {
-	return *t.OverWrite.UnwrapOr(DefaultTemplateOverWrite)
+	return t.OverWrite.UnwrapOr(DefaultTemplateOverWrite)
 }
 
 func (t *Template) GetFileMode() os.FileMode {
-	return os.FileMode(*t.FileMod.UnwrapOr(DefaultTemplateFileMod))
+	return os.FileMode(t.FileMod.UnwrapOr(DefaultTemplateFileMod))
 }
 
 func (t *Template) GetDirMode() os.FileMode {
-	return os.FileMode(*t.DirMod.UnwrapOr(DefaultTemplateDirMod))
+	return os.FileMode(t.DirMod.UnwrapOr(DefaultTemplateDirMod))
 }
 
 func (t *Template) GetIsFatal() bool {
-	return *t.IsFatal.UnwrapOr(DefaultTemplateFatality)
+	return t.IsFatal.UnwrapOr(DefaultTemplateFatality)
 }

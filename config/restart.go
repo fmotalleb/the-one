@@ -41,13 +41,13 @@ func (r *RestartConfig) GetCount() (uint, bool) {
 // GetDelayBegin returns value of minimum allowed delay set in config.
 // if omitted it will return [DefaultRestartDelayBegin].
 func (r *RestartConfig) GetDelayBegin() time.Duration {
-	return *r.Delay.UnwrapOr(DefaultRestartDelayBegin)
+	return r.Delay.UnwrapOr(DefaultRestartDelayBegin)
 }
 
 // GetDelayMax returns value of maximum allowed delay set in config.
 // if omitted it will return [DefaultRestartDelayMax].
 func (r *RestartConfig) GetDelayMax() time.Duration {
-	return *r.DelayMax.UnwrapOr(DefaultRestartDelayMax)
+	return r.DelayMax.UnwrapOr(DefaultRestartDelayMax)
 }
 
 func (r *RestartConfig) GetDelay(iteration uint) (time.Duration, bool) {

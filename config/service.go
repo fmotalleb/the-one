@@ -22,7 +22,7 @@ type Service struct {
 	Executable option.Some[string] `mapstructure:"executable,omitempty" yaml:"executable"`
 
 	// Arguments is the list of optional arguments passed to the executable.
-	Arguments []option.Optional[string] `mapstructure:"args,omitempty" yaml:"args"`
+	Arguments []option.OptionalT[string] `mapstructure:"args,omitempty" yaml:"args"`
 
 	// Environments is a map of environment variables passed to the process.
 	// Values can be explicitly unset or null, if passtru is set to false or unset process will be started with zero environment variable.
@@ -79,17 +79,17 @@ type Service struct {
 }
 
 func (s *Service) GetName() string {
-	return *s.Name.UnwrapOr("")
+	return s.Name.UnwrapOr("")
 }
 
 func (s *Service) GetType() ServiceType {
-	return *s.Type.UnwrapOr(OngoingService)
+	return s.Type.UnwrapOr(OngoingService)
 }
 
 func (s *Service) GetProcessCount() int {
-	return *s.ProcessCount.UnwrapOr(DefaultProcessCount)
+	return s.ProcessCount.UnwrapOr(DefaultProcessCount)
 }
 
 func (s *Service) GetRestart() RestartConfig {
-	return *s.Restart.UnwrapOr(DefaultRestartConfig)
+	return s.Restart.UnwrapOr(DefaultRestartConfig)
 }
