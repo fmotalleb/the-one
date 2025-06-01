@@ -20,10 +20,10 @@ func emailHandler(cfg config.ContactPoint) (notify.Notifier, error) {
 	}
 	smtpHost := *cfg.SMTPHost.Unwrap()
 
-	smtpHostName := *cfg.SMTPHostName.UnwrapOr(strings.Split(smtpHost, ":")[0])
+	smtpHostName := cfg.SMTPHostName.UnwrapOr(strings.Split(smtpHost, ":")[0])
 	smtpUser := *cfg.SMTPUser.Unwrap()
 	smtpPass := *cfg.SMTPPass.Unwrap()
-	smtpFrom := *cfg.SMTPFrom.UnwrapOr(smtpUser)
+	smtpFrom := cfg.SMTPFrom.UnwrapOr(smtpUser)
 	smtpReceivers := make([]string, len(cfg.SMTPReceivers))
 	for index, i := range cfg.SMTPReceivers {
 		smtpReceivers[index] = *i.Unwrap()

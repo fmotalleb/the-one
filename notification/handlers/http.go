@@ -19,7 +19,7 @@ func httpWebhookHandler(cfg config.ContactPoint) (notify.Notifier, error) {
 	if cfg.HTTPWebhookAddress.IsSome() {
 		wh := *cfg.HTTPWebhookAddress.Unwrap()
 		client := http.New()
-		method := *cfg.HTTPMethod.UnwrapOr(stdhttp.MethodPost)
+		method := cfg.HTTPMethod.UnwrapOr(stdhttp.MethodPost)
 		client.AddReceivers(&http.Webhook{
 			URL:          wh,
 			Header:       cfg.GetHTTPHeaders(),
