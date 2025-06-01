@@ -12,6 +12,8 @@ import (
 	"github.com/fmotalleb/the-one/config"
 )
 
+const defaultProcessTimeout = 10 * time.Second
+
 // ServiceState represents the current state of a service.
 type ServiceState int
 

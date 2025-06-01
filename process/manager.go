@@ -172,6 +172,7 @@ func (sm *ServiceManager) createProcessInstance(id int) (*Instance, error) {
 		}
 	}
 
+	// #nosec G204 -- the command will be from config file so yeah its a variable
 	cmd := exec.CommandContext(sm.ctx, *executable, args...)
 
 	// Set working directory
@@ -319,8 +320,8 @@ func (sm *ServiceManager) stopProcessInstance(instance *Instance) error {
 		logger.Warn("failed to send SIGTERM", zap.Error(err))
 	}
 
-	// Wait for graceful shutdown with timeout
-	timeout := 10 * time.Second
+	// Wait for graceful shutdown with timeout.
+	timeout := defaultProcessTimeout
 	if sm.config.Timeout.IsSome() {
 		timeout = *sm.config.Timeout.Unwrap()
 	}
@@ -448,42 +449,7 @@ func (sm *ServiceManager) loadEnvFile(filename string, env map[string]string) er
 	return nil
 }
 
-// // shouldRestart determines if the service should be restarted
-// func (sm *ServiceManager) shouldRestart() bool {
-// 	logger := sm.logger.Named("shouldRestart")
-// 	restartConfig := sm.config.GetRestart()
-
-// 	// Check if restart count limit is reached
-// 	count, hasLimit := restartConfig.GetCount()
-// 	if hasLimit && sm.restartCount >= count {
-// 		logger.Info("restart count limit reached",
-// 			zap.Uint("count", count),
-// 			zap.Uint("current", sm.restartCount))
-// 		return false
-// 	}
-
-// 	// Calculate expected delay for current iteration
-
-// 	// Check if we're still in the delay period
-// 	timeSinceLastRestart := time.Since(sm.lastRestart)
-// 	sm.lastRestart = time.Now()
-// 	if timeSinceLastRestart < expectedDelay {
-// 		remainingDelay := expectedDelay - timeSinceLastRestart
-// 		logger.Debug("still in restart delay period",
-// 			zap.Duration("remaining", remainingDelay),
-// 			zap.Duration("expected_delay", expectedDelay))
-// 		// return false
-// 	}
-
-// 	logger.Debug("restart allowed",
-// 		zap.Uint("iteration", sm.restartCount),
-// 		zap.Duration("delay_used", expectedDelay),
-// 		zap.Duration("time_since_last", timeSinceLastRestart))
-
-// 	return true
-// }
-
-// restart restarts the service
+// restart restarts the service.
 func (sm *ServiceManager) restart() {
 	logger := sm.logger.Named("restart")
 
@@ -513,7 +479,7 @@ func (sm *ServiceManager) restart() {
 		// Use context-aware sleep to allow cancellation during delay
 		select {
 		case <-sm.ctx.Done():
-			logger.Info("restart cancelled during delay")
+			logger.Warn("restart canceled during delay")
 			return
 		case <-time.After(delay):
 			// Continue with restart
@@ -525,7 +491,7 @@ func (sm *ServiceManager) restart() {
 	// Stop current processes
 	if err := sm.stopProcesses(); err != nil {
 		logger.Error("failed to stop processes during restart", zap.Error(err))
-		// Continue with restart attempt even if stop failed
+		// Continue with restart attempt even if stop failed (possibly will happen)
 	}
 
 	// Start new processes

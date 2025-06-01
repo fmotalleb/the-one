@@ -109,7 +109,6 @@ func WaitForEngine(
 					} else {
 						log.Debug("skipped event",
 							zap.Uint16("state", uint16(e.EngineState)),
-							zap.Any("event", e),
 						)
 					}
 				case <-ctx.Done():
