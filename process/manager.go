@@ -1,3 +1,5 @@
+// TODO code in this package was a POC and must be rewritten in order to work
+// Its just a mimic of what it should be
 // Package process encapsulates logic behind process management and policies for individual processes
 package process
 
