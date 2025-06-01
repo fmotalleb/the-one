@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var logger *zap.Logger
@@ -24,6 +25,17 @@ func BootLogger(cfg LogConfig) error {
 	}
 	logger = l
 	return nil
+}
+
+func BootTestLogger() {
+	cfg := zap.NewProductionConfig()
+	cfg.Level = zap.NewAtomicLevelAt(zapcore.WarnLevel) // or InfoLevel, DebugLevel, etc.
+
+	l, err := cfg.Build()
+	if err != nil {
+		panic(err)
+	}
+	logger = l
 }
 
 func GetLogger(name string) *zap.Logger {
