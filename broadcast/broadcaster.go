@@ -6,7 +6,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/fmotalleb/the-one/concurrency"
 	"github.com/fmotalleb/the-one/logging"
 )
 
@@ -92,11 +91,17 @@ func (b *Broadcaster[T]) Publish(val T) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 	for _, sub := range b.subscribers {
+		// TODO: fix or clarify
 		// Drain the subscriber channel if the listener released it without closing
 		// A bad move but normally they will be deleted after this loop, the reason for this is
 		// the unsubscribe also wants to lock but will fail if publish is in this loop
 		// thus a channel may be waiting to be removed but that happens until after this loop
-		_ = concurrency.Drain(sub)
+		// this is a Deadlock scenario and the fix has a Race condition scenario. currently the deadlock is ignored
+		// since its hard to generate and its the developer's negligence if deadlock occurs.
+
+		// Its possible to patch both issues if subs received an array instead of single item
+		// this way we can drain sub, append new item to it then dispatch it again
+		// _ = concurrency.Drain(sub)
 		sub <- val
 	}
 }

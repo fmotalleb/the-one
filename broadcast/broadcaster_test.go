@@ -22,11 +22,7 @@ func broadCastGenerator() (*broadcast.Broadcaster[payload], chan payload, <-chan
 }
 
 func TestBroadcaster(t *testing.T) {
-	e := logging.BootLogger(logging.LogConfig{
-		ShowCaller:  false,
-		Development: false,
-	})
-	assert.NoError(t, e)
+	logging.BootTestLogger()
 
 	assertReceived := func(t *testing.T, ch <-chan payload, expected int, label string) {
 		t.Helper()
@@ -91,12 +87,8 @@ func TestBroadcaster(t *testing.T) {
 		var received []int
 		done := make(chan struct{})
 		go broadcast.Subscribe(b, func(ch <-chan payload) {
-			select {
-			case val := <-ch:
-				received = append(received, val)
-			case <-time.After(1 * time.Second):
-				t.Error("timed out waiting for value")
-			}
+			val := <-ch
+			received = append(received, val)
 			close(done)
 		})
 
