@@ -3,11 +3,13 @@ package controller
 import (
 	"context"
 	"errors"
+	"os"
 
 	"go.uber.org/zap"
 
 	"github.com/fmotalleb/the-one/config"
 	"github.com/fmotalleb/the-one/logging"
+	"github.com/fmotalleb/the-one/process"
 	"github.com/fmotalleb/the-one/renderer"
 )
 
@@ -39,5 +41,27 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	} else {
 		l.Debug("no template was found, ignoring the step")
 	}
+	for _, svc := range cfg.Services {
+		// Currently does nothing but will be used to
+		ctrl := make(chan process.ServiceMessage)
+		signal := make(chan process.ServiceMessage)
+		go trackChannel(signal)
+		std := process.StdConfig{
+			In:  os.Stdin,
+			Out: logging.NewZapWriter(svc.GetName() + ".out"),
+			Err: logging.NewZapWriter(svc.GetName() + ".err"),
+		}
+		mgr := process.NewServiceManager(ctx, &svc, ctrl, signal, std)
+		err := mgr.Start()
+		l.Error("failed to start process", zap.Error(err))
+	}
+	select {}
 	return nil
+}
+
+func trackChannel(ch chan process.ServiceMessage) {
+	l := log().Named("Tracker")
+	for v := range ch {
+		l.Debug("message received", zap.Any("signal", v))
+	}
 }

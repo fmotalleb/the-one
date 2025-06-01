@@ -12,10 +12,10 @@ type Some[T any] struct {
 	data *T
 }
 
-func (s Some[T]) IsSome() bool    { return true }
-func (s Some[T]) IsNone() bool    { return false }
-func (s Some[T]) Unwrap() *T      { return s.data }
-func (s Some[T]) UnwrapOr(_ T) *T { return s.data }
+func (s Some[T]) IsSome() bool   { return true }
+func (s Some[T]) IsNone() bool   { return false }
+func (s Some[T]) Unwrap() *T     { return s.data }
+func (s Some[T]) UnwrapOr(_ T) T { return *s.data }
 
 func (s *Some[T]) Decode(_, _ reflect.Type, val interface{}) error {
 	if val == nil {

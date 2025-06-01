@@ -4,7 +4,7 @@ type Option[T any] interface {
 	IsSome() bool
 	IsNone() bool
 	Unwrap() *T
-	UnwrapOr(def T) *T
+	UnwrapOr(def T) T
 }
 
 func New[T any](data *T) Option[T] {

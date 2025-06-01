@@ -76,9 +76,9 @@ func (o Optional[T]) Unwrap() *T {
 	return o.Option.Unwrap()
 }
 
-func (o Optional[T]) UnwrapOr(def T) *T {
+func (o Optional[T]) UnwrapOr(def T) T {
 	if o.Option == nil {
-		return &def
+		return def
 	}
 	return o.Option.UnwrapOr(def)
 }
