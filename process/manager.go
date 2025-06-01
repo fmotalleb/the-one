@@ -256,7 +256,7 @@ func (sm *ServiceManager) monitorProcessInstance(instance *Instance) {
 	}
 	// Check if restart is needed
 	if sm.config.GetType() == config.OngoingService {
-		go sm.restartInstance(instance)
+		go sm.restart()
 	} else {
 		sm.sendStatus(SignalError, StateError, err)
 	}
@@ -547,38 +547,6 @@ func (sm *ServiceManager) restart() {
 		sm.setState(StateRunning)
 		sm.sendStatus(SignalStateChange, StateRunning, nil)
 	}
-}
-
-// restartInstance restarts a specific instance
-func (sm *ServiceManager) restartInstance(instance *Instance) {
-	logger := sm.logger.Named("restartInstance")
-
-	logger.Info("restarting instance", zap.Int("instance", instance.ID))
-
-	// Create new instance
-	newInstance, err := sm.createProcessInstance(instance.ID)
-	if err != nil {
-		logger.Error("failed to create new instance", zap.Error(err))
-		return
-	}
-
-	// Start new instance
-	if err := sm.startProcessInstance(newInstance); err != nil {
-		logger.Error("failed to start new instance", zap.Error(err))
-		return
-	}
-
-	// Replace in instances list
-	sm.mutex.Lock()
-	for i, inst := range sm.instances {
-		if inst.ID == instance.ID {
-			sm.instances[i] = newInstance
-			break
-		}
-	}
-	sm.mutex.Unlock()
-
-	logger.Info("instance restarted successfully", zap.Int("instance", instance.ID))
 }
 
 // setState sets the service state and sends notification
