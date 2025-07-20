@@ -12,9 +12,9 @@ import (
 // Service represents a single service definition in the system,
 // including metadata, execution details, lifecycle, and dependencies.
 type Service struct {
-	// Name is the unique name of the service.
+	// NameValue is the unique name of the service.
 	// This field is required.
-	Name option.Some[string] `mapstructure:"name,omitempty" yaml:"name"`
+	NameValue option.Some[string] `mapstructure:"name,omitempty" yaml:"name"`
 
 	// Enabled specifies whether the service is in the service tree or not.
 	// If false, the service will be ignored.
@@ -71,21 +71,29 @@ type Service struct {
 	// Requirements is a list of service names that must be successfully started before this one.
 	Requirements []option.Optional[string] `mapstructure:"requires,omitempty" yaml:"requires"`
 
-	// After lists services that must be stopped before this one starts.
+	// DependencyItems lists services that must be stopped before this one starts.
 	// These are soft constraints used in sequencing, not hard dependencies.
-	After []option.Optional[string] `mapstructure:"After,omitempty" yaml:"After"`
+	Dependencies []option.Optional[string] `mapstructure:"After,omitempty" yaml:"After"`
 
 	// Dependents are services that depend on this one.
 	// Internally, this is translated to `After` entries in those dependent services.
 	// This field is cleared before execution.
 	Dependents []option.Optional[string] `mapstructure:"dependents,omitempty" yaml:"dependents"`
 
+	// TODO: Still in process of freezing the configuration
+	// Currently needs a slice
+	// [type,parameter]
+	// [stdout]
+	// [stderr]
+	// [file,./test.log]
 	StdOut *writer.Writer `mapstructure:"stdout,omitempty" yaml:"stdout"`
+
+	// By default will use [StdOut] if not provided
 	StdErr *writer.Writer `mapstructure:"stderr,omitempty" yaml:"stderr"`
 }
 
-func (s *Service) GetName() string {
-	return s.Name.UnwrapOr("")
+func (s *Service) Name() string {
+	return *s.NameValue.Unwrap()
 }
 
 func (s *Service) GetType() ServiceType {

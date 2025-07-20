@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"errors"
-	"os"
 
 	"go.uber.org/zap"
 
@@ -18,6 +17,16 @@ var log = logging.LazyLogger("controller")
 func Boot(ctx context.Context, cfg *config.Config) error {
 	l := log().Named("Boot")
 	l.Info("booting service controller")
+
+	rootServices, err := cfg.BuildServiceGraph()
+	if err != nil {
+		return err
+	}
+	for _, svc := range rootServices {
+		svc.Traverse(func(s *config.Service) {
+			s.DependencyCount++
+		})
+	}
 	// Compile Templates
 	for _, t := range cfg.Templates {
 		tl := l.With(zap.String("src", t.GetSourceDirectory()))
@@ -41,19 +50,9 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	} else {
 		l.Debug("no template was found, ignoring the step")
 	}
-	for _, svc := range cfg.Services {
-		// Currently does nothing but will be used to
-		ctrl := make(chan process.ServiceMessage)
-		signal := make(chan process.ServiceMessage)
-		go trackChannel(signal)
-		std := process.StdConfig{
-			In:  os.Stdin,
-			Out: svc.GetOut(),
-			Err: svc.GetErr(),
-		}
-		mgr := process.NewServiceManager(ctx, &svc, ctrl, signal, std)
-		err := mgr.Start()
-		l.Error("failed to start process", zap.Error(err))
+	for _, svc := range rootServices {
+		svc.Traverse(func(s *config.Service) {
+		})
 	}
 	select {}
 	return nil

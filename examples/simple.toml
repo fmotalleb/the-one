@@ -1,12 +1,16 @@
-include = ["examples/*.toml"]
+include = [
+  "examples/*.toml",
+]
 
 [[services]]
 name = "simple"
 executable = "bash"
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
-args = ["-c", "echo oneshot"]
+args = [
+  "-c",
+  "echo oneshot",
+]
 inherit_env = true
-env_file = "test.env"
 type = "one-shot"
 process_count = 15
 
@@ -14,9 +18,11 @@ process_count = 15
 name = "simple2"
 executable = "bash"
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
-args = ["-c", "echo 'in looooooop' >&2; exit 1"]
+args = [
+  "-c",
+  "date; exit 1",
+]
 inherit_env = true
-env_file = "test.env"
 type = "normal"
-
+stdout = "file,./test.log"
 # restart.count = 15

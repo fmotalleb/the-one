@@ -34,7 +34,7 @@ func NewServiceManager(
 
 	logger := log().
 		Named("service").
-		Named(config.GetName())
+		Named(config.Name())
 
 	return &ServiceManager{
 		config:    config,
@@ -52,7 +52,7 @@ func NewServiceManager(
 // Start starts the service manager.
 func (sm *ServiceManager) Start() error {
 	logger := sm.logger.Named("Start")
-	logger.Info("starting service manager", zap.String("service", sm.config.GetName()))
+	logger.Info("starting service manager", zap.String("service", sm.config.Name()))
 
 	sm.setState(StateStarting)
 
@@ -78,7 +78,7 @@ func (sm *ServiceManager) Start() error {
 // Stop stops the service manager.
 func (sm *ServiceManager) Stop() error {
 	logger := sm.logger.Named("Stop")
-	logger.Info("stopping service manager", zap.String("service", sm.config.GetName()))
+	logger.Info("stopping service manager", zap.String("service", sm.config.Name()))
 
 	sm.setState(StateStopping)
 
@@ -456,7 +456,7 @@ func (sm *ServiceManager) restart() {
 	logger := sm.logger.Named("restart")
 
 	logger.Info("restarting service",
-		zap.String("service", sm.config.GetName()),
+		zap.String("service", sm.config.Name()),
 		zap.Uint("attempt", sm.restartCount+1))
 
 	sm.restartCount++
@@ -509,7 +509,7 @@ func (sm *ServiceManager) restart() {
 		sm.restart()
 	} else {
 		logger.Info("service restarted successfully",
-			zap.String("service", sm.config.GetName()),
+			zap.String("service", sm.config.Name()),
 			zap.Uint("attempt", sm.restartCount))
 
 		sm.setState(StateRunning)
@@ -534,7 +534,7 @@ func (sm *ServiceManager) sendStatus(signal ServiceSignal, state ServiceState, e
 	select {
 	case sm.statusCh <- ServiceMessage{
 		Signal:    signal,
-		ServiceID: sm.config.GetName(),
+		ServiceID: sm.config.Name(),
 		State:     state,
 		Error:     err,
 	}:
