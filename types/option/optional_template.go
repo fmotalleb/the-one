@@ -8,8 +8,9 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 
+	"github.com/fmotalleb/go-tools/decoder"
+
 	"github.com/fmotalleb/the-one/template"
-	"github.com/fmotalleb/the-one/types/decodable"
 )
 
 type OptionalT[T any] struct {
@@ -32,7 +33,7 @@ func (o *OptionalT[T]) Decode(_ reflect.Type, template interface{}) (any, error)
 	}
 	var target T
 
-	if err := decodable.Decode(parsed, &target); err != nil {
+	if err := decoder.Decode(&target, parsed); err != nil {
 		return nil, err
 	}
 

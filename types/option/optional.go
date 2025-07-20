@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 
-	"github.com/fmotalleb/the-one/types/decodable"
+	"github.com/fmotalleb/go-tools/decoder"
 )
 
 type Optional[T any] struct {
@@ -17,14 +17,14 @@ func (o *Optional[T]) Decode(_ reflect.Type, val interface{}) (any, error) {
 		return val, nil
 	}
 	var target T
-	result, err := decodable.UsingParserOf[T](val)
+	result, err := decoder.UsingParserOf[T](val)
 	if result != nil {
 		if err != nil {
 			return nil, err
 		}
 		target = *result
 	} else {
-		err := decodable.Decode(val, &target)
+		err := decoder.Decode(&target, val)
 		if err != nil {
 			return nil, err
 		}
