@@ -19,17 +19,14 @@ package cmd
 import (
 	"os"
 
+	"github.com/fmotalleb/go-tools/log"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 
 	"github.com/fmotalleb/the-one/config"
 	"github.com/fmotalleb/the-one/controller"
 	"github.com/fmotalleb/the-one/logging"
 	"github.com/fmotalleb/the-one/system"
-)
-
-var (
-	cfgFile string
-	logCfg  logging.LogConfig
 )
 
 // rootCmd represents the base command when called without any subcommands.
@@ -41,15 +38,30 @@ It is designed to be lightweight and easy to use, making it ideal for
 containers that require a simple init system.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	PersistentPreRunE: func(_ *cobra.Command, _ []string) error {
-		if err := logging.BootLogger(logCfg); err != nil {
+	PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+		isVerbose, err := cmd.Flags().GetBool("verbose")
+		if err != nil {
 			return err
 		}
+		var l *zap.Logger
+		if l, err = buildLogger(isVerbose); err != nil {
+			return err
+		}
+		logging.SetRootLogger(l)
 		return nil
 	},
-	RunE: func(_ *cobra.Command, _ []string) error {
-		cfg, err := readConfig(cfgFile)
+	RunE: func(cmd *cobra.Command, _ []string) error {
+		cfgFile, err := cmd.Flags().GetString("config")
 		if err != nil {
+			return err
+		}
+		isVerbose, err := cmd.Flags().GetBool("verbose")
+		if err != nil {
+			return err
+		}
+
+		cfg := new(config.Config)
+		if err := config.Parse(cfg, cfgFile, isVerbose); err != nil {
 			return err
 		}
 		return controller.Boot(system.NewSystemContext(), cfg)
@@ -66,38 +78,27 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVar(
-		&cfgFile,
+	rootCmd.Flags().StringP(
 		"config",
-		"",
-		"config file (default is $HOME/.seed.yaml)",
+		"c",
+		"config.toml",
+		"config file (default is ./config.toml)",
 	)
 
-	rootCmd.PersistentFlags().BoolVar(
-		&logCfg.Development,
-		"dev-logging",
+	rootCmd.PersistentFlags().BoolP(
+		"verbose",
+		"v",
 		false,
 		"enable verbose development logger instead of JSON",
 	)
-
-	rootCmd.PersistentFlags().BoolVar(
-		&logCfg.ShowCaller,
-		"	log-caller-info",
-		false,
-		"include caller filepath in log output",
-	)
 }
 
-// readConfig reads in config file and ENV variables if set.
-func readConfig(cfgFile string) (*config.Config, error) {
-	c, err := config.ReadAndMergeConfig(cfgFile)
-	if err != nil {
-		return nil, err
+func buildLogger(isDebug bool) (*zap.Logger, error) {
+	if isDebug {
+		log.SetDebugDefaults()
 	}
-	cfg, err := config.DecodeConfig(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return &cfg, nil
+	b := log.
+		NewBuilder().
+		FromEnv()
+	return b.Build()
 }

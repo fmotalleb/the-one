@@ -48,8 +48,8 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 		go trackChannel(signal)
 		std := process.StdConfig{
 			In:  os.Stdin,
-			Out: logging.NewZapWriter(svc.GetName() + ".out"),
-			Err: logging.NewZapWriter(svc.GetName() + ".err"),
+			Out: svc.GetOut(),
+			Err: svc.GetErr(),
 		}
 		mgr := process.NewServiceManager(ctx, &svc, ctrl, signal, std)
 		err := mgr.Start()

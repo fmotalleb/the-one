@@ -1,11 +1,8 @@
 package config
 
 import (
-	"github.com/fmotalleb/the-one/logging"
 	"github.com/fmotalleb/the-one/types/option"
 )
-
-var log = logging.LazyLogger("core.config")
 
 type Config struct {
 	Services  []Service      `mapstructure:"services,omitempty"`

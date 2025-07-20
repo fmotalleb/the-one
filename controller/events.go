@@ -4,9 +4,8 @@ import (
 	"context"
 	"regexp"
 
+	"github.com/fmotalleb/go-tools/broadcast"
 	"go.uber.org/zap"
-
-	"github.com/fmotalleb/the-one/broadcast"
 )
 
 type (

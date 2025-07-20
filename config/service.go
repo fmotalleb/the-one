@@ -1,7 +1,10 @@
 package config
 
 import (
+	"io"
 	"time"
+
+	"github.com/fmotalleb/go-tools/writer"
 
 	"github.com/fmotalleb/the-one/types/option"
 )
@@ -25,7 +28,7 @@ type Service struct {
 	Arguments []option.OptionalT[string] `mapstructure:"args,omitempty" yaml:"args"`
 
 	// Environments is a map of environment variables passed to the process.
-	// Values can be explicitly unset or null, if passtru is set to false or unset process will be started with zero environment variable.
+	// Values can be explicitly unset or null, if inherit is set to false or unset process will be started with zero environment variable.
 	Environments map[string]option.Optional[string] `mapstructure:"env,omitempty" yaml:"env"`
 
 	// Acts like list of .env files for the service
@@ -33,7 +36,7 @@ type Service struct {
 
 	// Passes environment variables of the init system to child service.
 	// Unset or null acts like false.
-	EnvPassThru option.Optional[bool] `mapstructure:"env_passtru,omitempty" yaml:"env_passtru"`
+	InheritEnviron option.Optional[bool] `mapstructure:"inherit_env,omitempty" yaml:"inherit_env"`
 
 	// WorkingDir defines the working directory for the service process.
 	// If unset, it defaults to the current working directory of the init system.
@@ -76,6 +79,9 @@ type Service struct {
 	// Internally, this is translated to `After` entries in those dependent services.
 	// This field is cleared before execution.
 	Dependents []option.Optional[string] `mapstructure:"dependents,omitempty" yaml:"dependents"`
+
+	StdOut *writer.Writer `mapstructure:"stdout,omitempty" yaml:"stdout"`
+	StdErr *writer.Writer `mapstructure:"stderr,omitempty" yaml:"stderr"`
 }
 
 func (s *Service) GetName() string {
@@ -92,4 +98,18 @@ func (s *Service) GetProcessCount() int {
 
 func (s *Service) GetRestart() RestartConfig {
 	return s.Restart.UnwrapOr(DefaultRestartConfig)
+}
+
+func (s *Service) GetOut() io.Writer {
+	if s.StdOut != nil {
+		return s.StdOut
+	}
+	return writer.NewStdErr()
+}
+
+func (s *Service) GetErr() io.Writer {
+	if s.StdErr != nil {
+		return s.StdErr
+	}
+	return s.GetOut()
 }

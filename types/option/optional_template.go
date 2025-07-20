@@ -16,28 +16,28 @@ type OptionalT[T any] struct {
 	Optional[T]
 }
 
-func (o *OptionalT[T]) Decode(_, to reflect.Type, template interface{}) error {
+func (o *OptionalT[T]) Decode(_ reflect.Type, template interface{}) (any, error) {
 	if template == nil {
 		o.Option = &None[T]{}
-		return nil
+		return template, nil
 	}
 
 	raw, err := applyTemplate(template)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	parsed, err := transform[T](to, raw)
+	parsed, err := transform[T](raw)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var target T
 
 	if err := decodable.Decode(parsed, &target); err != nil {
-		return err
+		return nil, err
 	}
 
 	o.Option = New(&target)
-	return nil
+	return o, nil
 }
 
 func applyTemplate(val interface{}) (string, error) {
@@ -51,7 +51,9 @@ func applyTemplate(val interface{}) (string, error) {
 	return strVal, nil
 }
 
-func transform[T any](to reflect.Type, strVal string) (T, error) {
+func transform[T any](strVal string) (T, error) {
+	var empty T
+	to := reflect.TypeOf(empty)
 	if to.Implements(reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()) {
 		v := reflect.New(to).Interface().(encoding.TextUnmarshaler)
 		if err := v.UnmarshalText([]byte(strVal)); err != nil {

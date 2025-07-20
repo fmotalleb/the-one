@@ -1,18 +1,40 @@
 package config
 
 import (
-	"go.uber.org/zap"
+	"context"
+	"fmt"
 
-	"github.com/fmotalleb/the-one/types/decodable"
+	"github.com/fmotalleb/go-tools/config"
+	"github.com/fmotalleb/go-tools/decoder"
+	"github.com/fmotalleb/go-tools/log"
+	"go.uber.org/zap/zapcore"
 )
 
-// Decode map into Config struct.
-func DecodeConfig(input map[string]any) (Config, error) {
-	var cfg Config
-	log().Info("Decoding config from map")
-	if err := decodable.Decode(input, &cfg); err != nil {
-		log().Error("Decode failed", zap.Error(err))
-		return cfg, err
+func Parse(dst *Config, path string, debug bool) error {
+	ctx := context.TODO()
+	if debug {
+		ctx = log.WithNewEnvLoggerForced(
+			ctx,
+			func(b *log.Builder) *log.Builder {
+				return b.
+					LevelValue(zapcore.DebugLevel).
+					Name("config").
+					Development(true)
+			},
+		)
 	}
-	return cfg, nil
+	cfg, err := config.ReadAndMergeConfig(ctx, path)
+	if err != nil {
+		return fmt.Errorf("failed to read and merge configs: %w", err)
+	}
+	decoder, err := decoder.Build(dst)
+	if err != nil {
+		return fmt.Errorf("create decoder: %w", err)
+	}
+
+	if err := decoder.Decode(cfg); err != nil {
+		return fmt.Errorf("decode: %w", err)
+	}
+
+	return nil
 }

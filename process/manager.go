@@ -359,7 +359,7 @@ func (sm *ServiceManager) buildEnvironment() ([]string, error) {
 	env := make(map[string]string)
 
 	// Start with current environment if passthrough is enabled
-	if sm.config.EnvPassThru.UnwrapOr(false) {
+	if sm.config.InheritEnviron.UnwrapOr(false) {
 		for _, e := range os.Environ() {
 			parts := strings.SplitN(e, "=", 2)
 			if len(parts) == 2 {

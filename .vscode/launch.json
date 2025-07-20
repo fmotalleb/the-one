@@ -16,7 +16,7 @@
             },
             "args": [
                 "--config=./examples/simple.toml",
-                "--dev-logging"
+                "--verbose"
             ]
         }
     ]

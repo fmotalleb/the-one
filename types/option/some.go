@@ -17,18 +17,18 @@ func (s Some[T]) IsNone() bool   { return false }
 func (s Some[T]) Unwrap() *T     { return s.data }
 func (s Some[T]) UnwrapOr(_ T) T { return *s.data }
 
-func (s *Some[T]) Decode(_, _ reflect.Type, val interface{}) error {
+func (s *Some[T]) Decode(_ reflect.Type, val interface{}) (any, error) {
 	if val == nil {
-		return errors.New("required input is missing")
+		return nil, errors.New("required input is missing")
 	}
 
 	var target T
 	if err := mapstructure.Decode(val, &target); err != nil {
-		return err
+		return nil, err
 	}
 
 	s.data = &target
-	return nil
+	return s, nil
 }
 
 func (s Some[T]) Encode() (interface{}, error) {

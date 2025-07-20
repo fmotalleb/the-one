@@ -11,27 +11,27 @@ type Optional[T any] struct {
 	Option[T]
 }
 
-func (o *Optional[T]) Decode(from, to reflect.Type, val interface{}) error {
+func (o *Optional[T]) Decode(_ reflect.Type, val interface{}) (any, error) {
 	if val == nil {
 		o.Option = &None[T]{}
-		return nil
+		return val, nil
 	}
 	var target T
 	result, err := decodable.UsingParserOf[T](val)
 	if result != nil {
 		if err != nil {
-			return err
+			return nil, err
 		}
 		target = *result
 	} else {
 		err := decodable.Decode(val, &target)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
 	o.Option = New(&target)
-	return nil
+	return o, nil
 }
 
 func (o *Optional[T]) Encode() (interface{}, error) {

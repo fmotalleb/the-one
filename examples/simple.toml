@@ -5,16 +5,17 @@ name = "simple"
 executable = "bash"
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
 args = ["-c", "echo oneshot"]
-env_passtru = true
+inherit_env = true
 env_file = "test.env"
 type = "one-shot"
+process_count = 15
 
 [[services]]
 name = "simple2"
 executable = "bash"
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
 args = ["-c", "echo 'in looooooop' >&2; exit 1"]
-env_passtru = true
+inherit_env = true
 env_file = "test.env"
 type = "normal"
 
