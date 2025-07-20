@@ -39,3 +39,4 @@ dist/
 .env
 .envrc
 __*
+/the-one
