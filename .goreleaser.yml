@@ -12,6 +12,13 @@ builds:
       - windows
     goarch:
       - amd64
+    ldflags:
+      - "-s"
+      - "-w"
+      - "-X github.com/FMotalleb/go-tools/git.Version={{.Version}}"
+      - "-X github.com/FMotalleb/go-tools/git.Commit={{.ShortCommit}}"
+      - "-X github.com/FMotalleb/go-tools/git.Date={{.Date}}"
+      - "-X github.com/FMotalleb/go-tools/git.Branch={{.Branch}}"
 archives:
   - format_overrides:
       - goos: windows

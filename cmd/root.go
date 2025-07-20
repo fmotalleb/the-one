@@ -19,6 +19,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/fmotalleb/go-tools/git"
 	"github.com/fmotalleb/go-tools/log"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -36,8 +37,7 @@ var rootCmd = &cobra.Command{
 	Long: `Simple yet fast init system for monolithic containers.
 It is designed to be lightweight and easy to use, making it ideal for
 containers that require a simple init system.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
+	Version: git.String(),
 	PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 		isVerbose, err := cmd.Flags().GetBool("verbose")
 		if err != nil {
