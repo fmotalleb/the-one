@@ -53,23 +53,10 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 		svc.Traverse(func(s *config.Service) {
 			s.OnDependChange = func() {
 				if s.GetDependCount() == 0 {
-					// Launch the entire start-wait-notify sequence in a new goroutine.
-					// This handler now returns instantly, unblocking the main control flow.
-					// go func() {
 					proc := process.New(s)
-
-					// Execute starts the process.
 					go proc.Execute(ctx)
-
-					// This now blocks only *inside this goroutine*.
-					// It does NOT block other services from starting.
 					proc.WaitForHealthy()
-
-					// Once this service is healthy, notify its children to reduce their counts.
-					// This will in turn trigger their OnDependChange handlers.
-
 					svc.Traverse(config.ReduceDependCount)
-					// }()
 				}
 			}
 		})
