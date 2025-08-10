@@ -2,6 +2,7 @@ package config
 
 import (
 	"io"
+	"sync/atomic"
 	"time"
 
 	"github.com/fmotalleb/go-tools/writer"
@@ -69,16 +70,15 @@ type Service struct {
 	HealthCheck option.Optional[HealthCheckConfig] `mapstructure:"health_check,omitempty" yaml:"health_check"`
 
 	// Requirements is a list of service names that must be successfully started before this one.
-	Requirements []option.Optional[string] `mapstructure:"requires,omitempty" yaml:"requires"`
+	Requirements []option.Some[string] `mapstructure:"requires,omitempty" yaml:"requires"`
 
+	//! **Dropped due to being ambiguous.**
 	// DependencyItems lists services that must be stopped before this one starts.
 	// These are soft constraints used in sequencing, not hard dependencies.
-	Dependencies []option.Optional[string] `mapstructure:"After,omitempty" yaml:"After"`
+	// Dependencies []option.Optional[string] `mapstructure:"after,omitempty" yaml:"after"`
 
-	// Dependents are services that depend on this one.
-	// Internally, this is translated to `After` entries in those dependent services.
-	// This field is cleared before execution.
-	Dependents []option.Optional[string] `mapstructure:"dependents,omitempty" yaml:"dependents"`
+	// RequiredBy are services that depend on this one.
+	RequiredBy []option.Some[string] `mapstructure:"dependents,omitempty" yaml:"dependents"`
 
 	// TODO: Still in process of freezing the configuration
 	// Currently needs a slice
@@ -90,10 +90,28 @@ type Service struct {
 
 	// By default will use [StdOut] if not provided
 	StdErr *writer.Writer `mapstructure:"stderr,omitempty" yaml:"stderr"`
+
+	dependCount atomic.Int64
 }
 
 func (s *Service) Name() string {
 	return *s.NameValue.Unwrap()
+}
+
+func (s *Service) Dependencies() []string {
+	out := make([]string, len(s.Requirements))
+	for i, d := range s.Requirements {
+		out[i] = *d.Unwrap()
+	}
+	return out
+}
+
+func (s *Service) Dependents() []string {
+	out := make([]string, len(s.RequiredBy))
+	for i, d := range s.RequiredBy {
+		out[i] = *d.Unwrap()
+	}
+	return out
 }
 
 func (s *Service) GetType() ServiceType {
@@ -120,4 +138,12 @@ func (s *Service) GetErr() io.Writer {
 		return s.StdErr
 	}
 	return s.GetOut()
+}
+
+func IncreaseDependCount(s *Service) {
+	s.dependCount.Add(1)
+}
+
+func ReduceDependCount(s *Service) {
+	s.dependCount.Add(-1)
 }

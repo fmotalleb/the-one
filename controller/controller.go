@@ -23,9 +23,7 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 		return err
 	}
 	for _, svc := range rootServices {
-		svc.Traverse(func(s *config.Service) {
-			s.DependencyCount++
-		})
+		svc.Traverse(config.IncreaseDependCount)
 	}
 	// Compile Templates
 	for _, t := range cfg.Templates {
@@ -50,9 +48,9 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	} else {
 		l.Debug("no template was found, ignoring the step")
 	}
+
 	for _, svc := range rootServices {
-		svc.Traverse(func(s *config.Service) {
-		})
+		
 	}
 	select {}
 	return nil
