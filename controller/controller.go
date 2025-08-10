@@ -16,14 +16,6 @@ import (
 
 var log = logging.LazyLogger("controller")
 
-// TraverseTree will visit each node in the tree and execute the given function
-func TraverseTree(node *tree.Node[*config.Service], f func(*tree.Node[*config.Service])) {
-	f(node)
-	for _, child := range node.Children() {
-		TraverseTree(child, f)
-	}
-}
-
 func Boot(ctx context.Context, cfg *config.Config) error {
 	l := log().Named("Boot")
 	l.Info("booting service controller")
@@ -32,7 +24,7 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	if err != nil {
 		return err
 	}
-	increaseDepCount(rootServices)
+	weightServices(rootServices)
 
 	// Compile Templates
 	for _, t := range cfg.Templates {
@@ -57,40 +49,41 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	} else {
 		l.Debug("no template was found, ignoring the step")
 	}
-
-	serviceToNode := make(map[*config.Service]*tree.Node[*config.Service])
-	for _, n := range rootServices {
-		TraverseTree(n, func(node *tree.Node[*config.Service]) {
-			serviceToNode[node.Data] = node
-		})
-	}
-
 	for _, svc := range rootServices {
 		svc.Traverse(func(s *config.Service) {
 			s.OnDependChange = func() {
 				if s.GetDependCount() == 0 {
-					go func() {
-						proc := process.New(s)
-						go proc.Execute(ctx)
-						proc.WaitForHealthy()
-						node := serviceToNode[s]
-						for _, child := range node.Children() {
-							config.ReduceDependCount(child.Data)
-						}
-					}()
+					// Launch the entire start-wait-notify sequence in a new goroutine.
+					// This handler now returns instantly, unblocking the main control flow.
+					// go func() {
+					proc := process.New(s)
+
+					// Execute starts the process.
+					go proc.Execute(ctx)
+
+					// This now blocks only *inside this goroutine*.
+					// It does NOT block other services from starting.
+					proc.WaitForHealthy()
+
+					// Once this service is healthy, notify its children to reduce their counts.
+					// This will in turn trigger their OnDependChange handlers.
+
+					svc.Traverse(config.ReduceDependCount)
+					// }()
 				}
 			}
 		})
 	}
 	for _, svc := range rootServices {
-		config.ReduceDependCount(svc.Data)
+		svc.Traverse(config.ReduceDependCount)
 	}
 	select {}
 	return nil
 }
 
-func increaseDepCount(rootServices []*tree.Node[*config.Service]) {
-	for _, svc := range rootServices {
-		svc.Traverse(config.IncreaseDependCount)
+func weightServices(rootServices []*tree.Node[*config.Service]) {
+	for _, root := range rootServices {
+		root.Traverse(config.IncreaseDependCount)
+		weightServices(root.Children())
 	}
 }
