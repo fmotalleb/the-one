@@ -100,17 +100,17 @@ func printNode(n *tree.Node[*config.Service], prefix string, isLast bool) {
 	if prefix == "" {
 		fmt.Printf("%v\n", n.Data.Name()) // root node
 	} else {
-		fmt.Printf("%s%s%v\n", prefix, branch, n.Data)
+		fmt.Printf("%s%s%v\n", prefix, branch, n.Data.Name())
 	}
 
 	newPrefix := prefix
-	// if prefix != "" {
-	if isLast {
-		newPrefix += "    "
-	} else {
-		newPrefix += "│   "
+	if prefix != "" {
+		if isLast {
+			newPrefix += "    "
+		} else {
+			newPrefix += "│   "
+		}
 	}
-	// }
 
 	children := n.Children()
 	for i, child := range children {

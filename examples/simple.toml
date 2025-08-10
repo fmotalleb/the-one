@@ -19,7 +19,7 @@ process_count = 3
 [[services]]
 name = "bravo_agent"
 executable = "bash"
-depends_on = [
+requires = [
   "alpha_core",
 ]
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
@@ -33,7 +33,7 @@ type = "one-shot"
 [[services]]
 name = "charlie_listener"
 executable = "bash"
-depends_on = [
+requires = [
   "alpha_core",
 ]
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
@@ -49,7 +49,7 @@ stdout = "file,./charlie.log"
 [[services]]
 name = "delta_worker"
 executable = "bash"
-depends_on = [
+requires = [
   "bravo_agent",
   "charlie_listener",
 ]
@@ -65,7 +65,7 @@ process_count = 2
 [[services]]
 name = "echo_collector"
 executable = "bash"
-depends_on = [
+requires = [
   "charlie_listener",
 ]
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
@@ -81,7 +81,7 @@ stdout = "file,./collector.log"
 [[services]]
 name = "foxtrot_reporter"
 executable = "bash"
-depends_on = [
+requires = [
   "delta_worker",
   "echo_collector",
 ]
@@ -97,7 +97,7 @@ stdout = "file,./final_report.log"
 [[services]]
 name = "golf_monitor"
 executable = "bash"
-depends_on = [
+requires = [
   "delta_worker",
 ]
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
