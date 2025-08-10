@@ -7,6 +7,7 @@ import (
 
 	"github.com/fmotalleb/go-tools/writer"
 
+	"github.com/fmotalleb/the-one/helpers"
 	"github.com/fmotalleb/the-one/types/option"
 )
 
@@ -92,6 +93,9 @@ type Service struct {
 	StdErr *writer.Writer `mapstructure:"stderr,omitempty" yaml:"stderr"`
 
 	dependCount atomic.Int64
+
+	//! TODO its sloppy and temporary (final result is like this anyway)
+	OnDependChange func()
 }
 
 func (s *Service) Name() string {
@@ -99,19 +103,11 @@ func (s *Service) Name() string {
 }
 
 func (s *Service) Dependencies() []string {
-	out := make([]string, len(s.Requirements))
-	for i, d := range s.Requirements {
-		out[i] = *d.Unwrap()
-	}
-	return out
+	return helpers.SomeToSlice(s.Requirements)
 }
 
 func (s *Service) Dependents() []string {
-	out := make([]string, len(s.RequiredBy))
-	for i, d := range s.RequiredBy {
-		out[i] = *d.Unwrap()
-	}
-	return out
+	return helpers.SomeToSlice(s.RequiredBy)
 }
 
 func (s *Service) GetType() ServiceType {
@@ -133,6 +129,10 @@ func (s *Service) GetOut() io.Writer {
 	return writer.NewStdErr()
 }
 
+func (s *Service) GetDependCount() int64 {
+	return s.dependCount.Load()
+}
+
 func (s *Service) GetErr() io.Writer {
 	if s.StdErr != nil {
 		return s.StdErr
@@ -145,5 +145,8 @@ func IncreaseDependCount(s *Service) {
 }
 
 func ReduceDependCount(s *Service) {
-	s.dependCount.Add(-1)
+	if s.GetDependCount() > 0 {
+		s.dependCount.Add(-1)
+		s.OnDependChange()
+	}
 }

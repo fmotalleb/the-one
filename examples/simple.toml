@@ -2,27 +2,109 @@ include = [
   "examples/*.toml",
 ]
 
+# Level 0
 [[services]]
-name = "simple"
+name = "alpha_core"
 executable = "bash"
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
 args = [
   "-c",
-  "echo oneshot",
-]
-inherit_env = true
-type = "one-shot"
-process_count = 15
-
-[[services]]
-name = "simple2"
-executable = "bash"
-enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
-args = [
-  "-c",
-  "date; exit 1",
+  "echo Alpha Core initializing",
 ]
 inherit_env = true
 type = "normal"
-stdout = "file,./test.log"
-# restart.count = 15
+process_count = 3
+
+# Level 1
+[[services]]
+name = "bravo_agent"
+executable = "bash"
+depends_on = [
+  "alpha_core",
+]
+enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
+args = [
+  "-c",
+  "date && echo Bravo Agent running",
+]
+inherit_env = true
+type = "one-shot"
+
+[[services]]
+name = "charlie_listener"
+executable = "bash"
+depends_on = [
+  "alpha_core",
+]
+enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
+args = [
+  "-c",
+  "echo Listening for events...; sleep 2",
+]
+inherit_env = true
+type = "normal"
+stdout = "file,./charlie.log"
+
+# Level 2
+[[services]]
+name = "delta_worker"
+executable = "bash"
+depends_on = [
+  "bravo_agent",
+  "charlie_listener",
+]
+enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
+args = [
+  "-c",
+  "for i in {1..5}; do echo Delta working...; sleep 1; done",
+]
+inherit_env = true
+type = "normal"
+process_count = 2
+
+[[services]]
+name = "echo_collector"
+executable = "bash"
+depends_on = [
+  "charlie_listener",
+]
+enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
+args = [
+  "-c",
+  "echo Collecting data into ./collector.log",
+]
+inherit_env = true
+type = "one-shot"
+stdout = "file,./collector.log"
+
+# Level 3
+[[services]]
+name = "foxtrot_reporter"
+executable = "bash"
+depends_on = [
+  "delta_worker",
+  "echo_collector",
+]
+enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
+args = [
+  "-c",
+  "echo Generating final report... && date",
+]
+inherit_env = true
+type = "one-shot"
+stdout = "file,./final_report.log"
+
+[[services]]
+name = "golf_monitor"
+executable = "bash"
+depends_on = [
+  "delta_worker",
+]
+enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
+args = [
+  "-c",
+  "echo Monitoring service health...; sleep 3",
+]
+inherit_env = true
+type = "normal"
+process_count = 1
