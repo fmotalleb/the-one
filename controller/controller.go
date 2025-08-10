@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"go.uber.org/zap"
 
@@ -16,6 +15,14 @@ import (
 )
 
 var log = logging.LazyLogger("controller")
+
+// TraverseTree will visit each node in the tree and execute the given function
+func TraverseTree(node *tree.Node[*config.Service], f func(*tree.Node[*config.Service])) {
+	f(node)
+	for _, child := range node.Children() {
+		TraverseTree(child, f)
+	}
+}
 
 func Boot(ctx context.Context, cfg *config.Config) error {
 	l := log().Named("Boot")
@@ -51,18 +58,27 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 		l.Debug("no template was found, ignoring the step")
 	}
 
+	serviceToNode := make(map[*config.Service]*tree.Node[*config.Service])
+	for _, n := range rootServices {
+		TraverseTree(n, func(node *tree.Node[*config.Service]) {
+			serviceToNode[node.Data] = node
+		})
+	}
+
 	for _, svc := range rootServices {
 		svc.Traverse(func(s *config.Service) {
 			s.OnDependChange = func() {
 				if s.GetDependCount() == 0 {
-					proc := process.New(s)
-					go proc.Execute(ctx)
-					proc.WaitForHealthy()
+					go func() {
+						proc := process.New(s)
+						go proc.Execute(ctx)
+						proc.WaitForHealthy()
+						node := serviceToNode[s]
+						for _, child := range node.Children() {
+							config.ReduceDependCount(child.Data)
+						}
+					}()
 				}
-				for _, sv := range cfg.Services {
-					fmt.Println(sv.Name(), sv.GetDependCount())
-				}
-				svc.Traverse(config.ReduceDependCount)
 			}
 		})
 	}
@@ -76,7 +92,5 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 func increaseDepCount(rootServices []*tree.Node[*config.Service]) {
 	for _, svc := range rootServices {
 		svc.Traverse(config.IncreaseDependCount)
-		increaseDepCount(svc.Children())
-		// PrettyPrintTree(svc)
 	}
 }
