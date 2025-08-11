@@ -2,16 +2,12 @@ package controller
 
 import (
 	"context"
-	"errors"
-
-	"go.uber.org/zap"
 
 	"github.com/fmotalleb/go-tools/tree"
 
 	"github.com/fmotalleb/the-one/config"
 	"github.com/fmotalleb/the-one/logging"
 	"github.com/fmotalleb/the-one/process"
-	"github.com/fmotalleb/the-one/renderer"
 )
 
 var log = logging.LazyLogger("controller")
@@ -27,50 +23,43 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	weightServices(rootServices)
 
 	// Compile Templates
-	for _, t := range cfg.Templates {
-		tl := l.With(zap.String("src", t.GetSourceDirectory()))
-		tl.Debug(
-			"rendering template directory",
-		)
-		if err := renderer.RenderTemplates(&t); err != nil && t.GetIsFatal() {
-			tl.Error(
-				"failed to render templates",
-				zap.Error(err),
-			)
-			return errors.Join(
-				ErrEngineBoot,
-				err,
-			)
-		}
+	if err = compileTemplates(cfg, l); err != nil {
+		return err
 	}
 
-	if len(cfg.Templates) != 0 {
-		l.Debug("finished template rendering")
-	} else {
-		l.Debug("no template was found, ignoring the step")
-	}
 	for _, svc := range rootServices {
-		svc.Traverse(func(s *config.Service) {
-			s.OnDependChange = func() {
-				if s.GetDependCount() == 0 {
-					proc := process.New(s)
-					go proc.Execute(ctx)
-					proc.WaitForHealthy()
-					svc.Traverse(config.ReduceDependCount)
+		svc.TraverseNode(func(s *tree.Node[*config.Service]) {
+			s.Data.OnDependChange = func() {
+				if s.Data.GetDependCount() == 1 {
+					executeSvcNode(ctx, s)
+				} else {
+					println(s.Data.String())
 				}
 			}
 		})
 	}
 	for _, svc := range rootServices {
-		svc.Traverse(config.ReduceDependCount)
+		executeSvcNode(ctx, svc)
 	}
 	select {}
 	return nil
 }
 
+func executeSvcNode(ctx context.Context, svc *tree.Node[*config.Service]) {
+	s := svc.Data
+	proc := process.New(s)
+	go proc.Execute(ctx)
+	go func() {
+		proc.WaitForHealthy()
+		svc.Traverse(config.ReduceDependCount)
+	}()
+}
+
 func weightServices(rootServices []*tree.Node[*config.Service]) {
 	for _, root := range rootServices {
-		root.Traverse(config.IncreaseDependCount)
 		weightServices(root.Children())
+		if root.Data.GetDependCount() == 0 {
+			root.Traverse(config.IncreaseDependCount)
+		}
 	}
 }

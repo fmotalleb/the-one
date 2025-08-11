@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io"
 	"sync/atomic"
 	"time"
@@ -138,6 +139,10 @@ func (s *Service) GetErr() io.Writer {
 		return s.StdErr
 	}
 	return s.GetOut()
+}
+
+func (s *Service) String() string {
+	return fmt.Sprintf("%s %d", s.Name(), s.GetDependCount())
 }
 
 func IncreaseDependCount(s *Service) {
