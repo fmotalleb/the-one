@@ -1,6 +1,6 @@
 module github.com/fmotalleb/the-one
 
-go 1.24.4
+go 1.25.0
 
 tool (
 	github.com/client9/misspell/cmd/misspell
@@ -11,7 +11,7 @@ tool (
 
 require (
 	github.com/alecthomas/assert/v2 v2.11.0
-	github.com/fmotalleb/go-tools v0.1.31
+	github.com/fmotalleb/go-tools v0.1.34
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nikoksr/notify v1.3.0
 	github.com/spf13/cobra v1.9.1
@@ -349,7 +349,7 @@ require (
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
