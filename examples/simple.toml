@@ -65,6 +65,8 @@ process_count = 2
 [[services]]
 name = "echo_collector"
 executable = "bash"
+
+lazy = true
 requires = [
   "charlie_listener",
 ]
@@ -85,6 +87,7 @@ requires = [
   "delta_worker",
   "echo_collector",
 ]
+lazy = false
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
 args = [
   "-c",

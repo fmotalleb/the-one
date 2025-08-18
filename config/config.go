@@ -33,7 +33,7 @@ func treeFilter(n ServiceNode) bool {
 	if n.Data.Lazy.UnwrapOr(false) && len(n.Children()) == 0 {
 		return false
 	}
-	return false
+	return true
 }
 
 func weightServices(rootServices []ServiceNode) {

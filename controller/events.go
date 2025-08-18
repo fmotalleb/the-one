@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/fmotalleb/go-tools/broadcast"
+	"github.com/fmotalleb/go-tools/log"
 	"go.uber.org/zap"
 )
 
@@ -47,13 +48,14 @@ func WaitForService(
 	matcher *regexp.Regexp,
 	state ...ServiceState,
 ) {
-	log := log().Named("WaitForService")
+	l := log.Of(ctx)
+	l = l.Named("WaitForService")
 
 	listenOn := ServiceAny
 	if len(state) != 0 {
 		listenOn = state[0]
 	}
-	log.Debug("begin listening", zap.Uint16("listen-on", uint16(listenOn)))
+	l.Debug("begin listening", zap.Uint16("listen-on", uint16(listenOn)))
 
 	broadcast.Subscribe(
 		cast,
@@ -64,35 +66,37 @@ func WaitForService(
 					if e.Source == ESService &&
 						matcher.FindIndex([]byte(e.ServiceName)) != nil &&
 						listenOn&e.ServiceState == listenOn {
-						log.Info("matched service event",
+						l.Info("matched service event",
 							zap.String("service", e.ServiceName),
 							zap.Uint16("state", uint16(e.ServiceState)),
 						)
 						return
 					} else {
-						log.Debug("skipped event",
+						l.Debug("skipped event",
 							zap.String("service", e.ServiceName),
 							zap.Uint16("state", uint16(e.ServiceState)),
 							zap.Any("event", e),
 						)
 					}
 				case <-ctx.Done():
-					log.Warn("context canceled or deadline exceeded")
+					l.Warn("context canceled or deadline exceeded")
 					return
 				}
 			}
 		},
 	)
-	log.Debug("finished waiting", zap.Uint16("listen-on", uint16(listenOn)))
+	l.Debug("finished waiting", zap.Uint16("listen-on", uint16(listenOn)))
 }
 
 func WaitForEngine(
 	ctx context.Context,
 	cast broadcast.Subscription[Event],
 ) {
-	log := log().Named("WaitForEngine")
+	l := log.Of(ctx)
+	l = l.Named("WaitForEngine")
+
 	listenOn := EngineUp
-	log.Debug("begin listening", zap.Uint16("listen-on", uint16(listenOn)))
+	l.Debug("begin listening", zap.Uint16("listen-on", uint16(listenOn)))
 
 	broadcast.Subscribe(
 		cast,
@@ -101,21 +105,21 @@ func WaitForEngine(
 				select {
 				case e := <-c:
 					if e.Source == ESEngine && listenOn&e.EngineState == listenOn {
-						log.Info("matched engine event",
+						l.Info("matched engine event",
 							zap.Uint16("state", uint16(e.EngineState)),
 						)
 						return
 					} else {
-						log.Debug("skipped event",
+						l.Debug("skipped event",
 							zap.Uint16("state", uint16(e.EngineState)),
 						)
 					}
 				case <-ctx.Done():
-					log.Warn("context canceled or deadline exceeded")
+					l.Warn("context canceled or deadline exceeded")
 					return
 				}
 			}
 		},
 	)
-	log.Debug("finished waiting", zap.Uint16("listen-on", uint16(listenOn)))
+	l.Debug("finished waiting", zap.Uint16("listen-on", uint16(listenOn)))
 }

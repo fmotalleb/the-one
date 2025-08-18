@@ -5,15 +5,16 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/fmotalleb/go-tools/log"
+	"github.com/fmotalleb/go-tools/tree"
+
 	"github.com/fmotalleb/the-one/config"
-	"github.com/fmotalleb/the-one/logging"
 	"github.com/fmotalleb/the-one/process"
 )
 
-var log = logging.LazyLogger("controller")
-
 func Boot(ctx context.Context, cfg *config.Config) error {
-	l := log().Named("Boot")
+	l := log.Of(ctx)
+	l = l.Named("Boot")
 	l.Info("booting service controller")
 
 	rootServices, err := cfg.BuildServiceGraph()
@@ -27,20 +28,22 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	}
 
 	for _, svc := range rootServices {
-		svc.TraverseNode(func(s config.ServiceNode) {
+		svc.TraverseNode(func(s *tree.Node[*config.Service]) {
 			s.Data.OnDependChange = func() {
-				if s.Data.GetDependCount() == 1 {
+				depCount := s.Data.GetDependCount()
+				if depCount == 1 {
 					executeSvcNode(ctx, s)
-				} else {
-					l.Debug("server requirements unmet", zap.Any("service", s.Data.Name()))
+				} else if depCount > 1 {
+					l.Debug("service requirements unmet", zap.Any("service", s.Data.Name()))
 				}
 			}
 		})
 	}
 	for _, svc := range rootServices {
+		l.Debug("starting srv", zap.Any("srv", svc.Data))
 		executeSvcNode(ctx, svc)
 	}
-	select {}
+	<-make(chan int)
 	return nil
 }
 
