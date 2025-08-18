@@ -150,7 +150,7 @@ func IncreaseDependCount(s *Service) {
 }
 
 func ReduceDependCount(s *Service) {
-	if s.GetDependCount() > 0 {
+	if s.GetDependCount() > 1 {
 		s.dependCount.Add(-1)
 		s.OnDependChange()
 	}
