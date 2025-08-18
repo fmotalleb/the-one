@@ -64,6 +64,9 @@ containers that require a simple init system.`,
 		if err := config.Parse(cfg, cfgFile, isVerbose); err != nil {
 			return err
 		}
+		if err := cfg.Validate(); err != nil {
+			return err
+		}
 		ctx := system.NewSystemContext()
 		ctx = log.WithNewEnvLoggerForced(ctx)
 		return controller.Boot(ctx, cfg)

@@ -13,6 +13,7 @@
             "program": "${workspaceFolder}",
             "env": {
                 "ENABLED": "true",
+                "DISABLED": "false",
                 "TEST_JSON": "ewogICJmaWVsZCI6IDE1Cn0="
             },
             "args": [

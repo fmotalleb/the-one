@@ -8,7 +8,6 @@ import (
 
 	"github.com/fmotalleb/go-tools/writer"
 
-	"github.com/fmotalleb/the-one/helpers"
 	"github.com/fmotalleb/the-one/types/option"
 )
 
@@ -17,62 +16,63 @@ import (
 type Service struct {
 	// NameValue is the unique name of the service.
 	// This field is required.
-	NameValue option.Some[string] `mapstructure:"name,omitempty" yaml:"name"`
+	NameValue string `mapstructure:"name,omitempty" yaml:"name" validate:"required"`
 
 	// Enabled specifies whether the service is in the service tree or not.
 	// If false, the service will be ignored.
+	// TODO: switch with custom default true bool replacement
 	Enabled option.OptionalT[bool] `mapstructure:"enabled,omitempty" yaml:"enabled"`
 
 	// An absolute path to executable binary.
 	// This field is required.
-	Executable option.Some[string] `mapstructure:"executable,omitempty" yaml:"executable"`
+	Executable string `mapstructure:"executable,omitempty" yaml:"executable" validate:"required"`
 
 	// Arguments is the list of optional arguments passed to the executable.
-	Arguments []option.OptionalT[string] `mapstructure:"args,omitempty" yaml:"args"`
+	Arguments []string `mapstructure:"args,omitempty" yaml:"args"`
 
 	// Environments is a map of environment variables passed to the process.
 	// Values can be explicitly unset or null, if inherit is set to false or unset process will be started with zero environment variable.
-	Environments map[string]option.Optional[string] `mapstructure:"env,omitempty" yaml:"env"`
+	Environments map[string]string `mapstructure:"env,omitempty" yaml:"env"`
 
 	// Acts like list of .env files for the service
-	EnvironmentFile []option.Optional[string] `mapstructure:"env_file,omitempty" yaml:"env_file"`
+	EnvironmentFile []string `mapstructure:"env_file,omitempty" yaml:"env_file"`
 
 	// Passes environment variables of the init system to child service.
 	// Unset or null acts like false.
-	InheritEnviron option.Optional[bool] `mapstructure:"inherit_env,omitempty" yaml:"inherit_env"`
+	InheritEnviron bool `mapstructure:"inherit_env,omitempty" yaml:"inherit_env"`
 
 	// WorkingDir defines the working directory for the service process.
 	// If unset, it defaults to the current working directory of the init system.
-	WorkingDir option.OptionalT[string] `mapstructure:"working_dir,omitempty" yaml:"working_dir"`
+	WorkingDir string `mapstructure:"working_dir,omitempty" yaml:"working_dir" validate:"workingdir"`
 
 	// ProcessCount specifies how many instances of the executable to run.
 	// Defaults to 1 if not set.
-	ProcessCount option.OptionalT[int] `mapstructure:"process_count,omitempty" yaml:"process_count"`
+	ProcessCount int `mapstructure:"process_count,omitempty" yaml:"process_count"`
 
 	// Restart holds the configuration for automatic restarts on failure.
 	// If unset, will use default restart behavior:
 	// - Min Delay: 1s
 	// - Max Delay: 15s
 	// - Count: None
-	Restart option.Optional[RestartConfig] `mapstructure:"restart,omitempty" yaml:"restart"`
+	Restart RestartConfig `mapstructure:"restart,omitempty" yaml:"restart"`
 
 	// Timeout is the maximum time allowed for starting or stopping the process.
 	// A zero or unset value means no timeout is enforced.
 	// Its Considered in *-shot based services, in normal services this field has no means.
-	Timeout option.OptionalT[time.Duration] `mapstructure:"timeout,omitempty" yaml:"timeout"`
+	Timeout time.Duration `mapstructure:"timeout,omitempty" yaml:"timeout"`
 
 	// Type determines the kind of service [ServiceType]
-	Type option.Optional[ServiceType] `mapstructure:"type,omitempty" yaml:"type"`
+	Type ServiceType `mapstructure:"type,omitempty" yaml:"type"`
 
 	// Lazy indicates whether the service should be started lazily,
 	// i.e., only when required by a dependent.
-	Lazy option.Optional[bool] `mapstructure:"lazy,omitempty" yaml:"lazy"`
+	Lazy bool `mapstructure:"lazy,omitempty" yaml:"lazy"`
 
 	// HealthCheck defines the periodic check configuration to validate service health.
-	HealthCheck option.Optional[HealthCheckConfig] `mapstructure:"health_check,omitempty" yaml:"health_check"`
+	HealthCheck HealthCheckConfig `mapstructure:"health_check,omitempty" yaml:"health_check"`
 
 	// Requirements is a list of service names that must be successfully started before this one.
-	Requirements []option.Some[string] `mapstructure:"requires,omitempty" yaml:"requires"`
+	Requirements []string `mapstructure:"requires,omitempty" yaml:"requires" validate:"dive,required"`
 
 	//! **Dropped due to being ambiguous.**
 	// DependencyItems lists services that must be stopped before this one starts.
@@ -80,7 +80,7 @@ type Service struct {
 	// Dependencies []option.Optional[string] `mapstructure:"after,omitempty" yaml:"after"`
 
 	// RequiredBy are services that depend on this one.
-	RequiredBy []option.Some[string] `mapstructure:"dependents,omitempty" yaml:"dependents"`
+	RequiredBy []string `mapstructure:"dependents,omitempty" yaml:"dependents" validate:"dive,required"`
 
 	// TODO: Still in process of freezing the configuration
 	// Currently needs a slice
@@ -100,27 +100,27 @@ type Service struct {
 }
 
 func (s *Service) Name() string {
-	return *s.NameValue.Unwrap()
+	return s.NameValue
 }
 
 func (s *Service) Dependencies() []string {
-	return helpers.SomeToSlice(s.Requirements)
+	return s.Requirements
 }
 
 func (s *Service) Dependents() []string {
-	return helpers.SomeToSlice(s.RequiredBy)
+	return s.RequiredBy
 }
 
 func (s *Service) GetType() ServiceType {
-	return s.Type.UnwrapOr(OngoingService)
+	return OngoingService
 }
 
 func (s *Service) GetProcessCount() int {
-	return s.ProcessCount.UnwrapOr(DefaultProcessCount)
+	return DefaultProcessCount
 }
 
 func (s *Service) GetRestart() RestartConfig {
-	return s.Restart.UnwrapOr(DefaultRestartConfig)
+	return DefaultRestartConfig
 }
 
 func (s *Service) GetOut() io.Writer {

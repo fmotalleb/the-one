@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/fmotalleb/the-one/config"
-	"github.com/fmotalleb/the-one/helpers"
 )
 
 type Process struct {
@@ -23,8 +22,8 @@ type Process struct {
 func New(svc *config.Service) *Process {
 	return &Process{
 		name: svc.Name(),
-		exe:  *svc.Executable.Unwrap(),
-		args: helpers.OptToSlice(svc.Arguments),
+		exe:  svc.Executable,
+		args: svc.Arguments,
 	}
 }
 

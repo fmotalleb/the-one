@@ -6,7 +6,9 @@ import (
 
 	"github.com/fmotalleb/go-tools/config"
 	"github.com/fmotalleb/go-tools/decoder"
+	"github.com/fmotalleb/go-tools/decoder/hooks"
 	"github.com/fmotalleb/go-tools/log"
+	"github.com/fmotalleb/go-tools/template"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -27,6 +29,7 @@ func Parse(dst *Config, path string, debug bool) error {
 	if err != nil {
 		return fmt.Errorf("failed to read and merge configs: %w", err)
 	}
+	hooks.RegisterHook(template.StringTemplateEvaluate())
 	decoder, err := decoder.Build(dst)
 	if err != nil {
 		return fmt.Errorf("create decoder: %w", err)

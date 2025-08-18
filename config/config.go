@@ -2,14 +2,25 @@ package config
 
 import (
 	"github.com/fmotalleb/go-tools/tree"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type ServiceNode = *tree.Node[*Service]
 
 type Config struct {
-	Services  []*Service     `mapstructure:"services,omitempty"`
-	Templates []Template     `mapstructure:"templates,omitempty"`
-	Contacts  []ContactPoint `mapstructure:"contacts,omitempty"`
+	Services  []*Service     `mapstructure:"services,omitempty" validate:"dive,required"`
+	Templates []Template     `mapstructure:"templates,omitempty" validate:"dive,required"`
+	Contacts  []ContactPoint `mapstructure:"contacts,omitempty" validate:"dive,required"`
+}
+
+func (c *Config) Validate() error {
+	validate := validator.New(
+		validator.WithRequiredStructEnabled(),
+		validator.WithPrivateFieldValidation(),
+	)
+	_ = validate.RegisterValidation("workingdir", workingDirValidator)
+	return validate.Struct(c)
 }
 
 func (c *Config) BuildServiceGraph() ([]*tree.Node[*Service], error) {
@@ -30,7 +41,10 @@ func (c *Config) BuildServiceGraph() ([]*tree.Node[*Service], error) {
 
 func treeFilter(n ServiceNode) bool {
 	// Remove lazy nodes with no child
-	if n.Data.Lazy.UnwrapOr(false) && len(n.Children()) == 0 {
+	if n.Data.Lazy && len(n.Children()) == 0 {
+		return false
+	}
+	if !n.Data.Enabled.UnwrapOr(true) {
 		return false
 	}
 	return true

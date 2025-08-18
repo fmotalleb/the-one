@@ -87,7 +87,7 @@ requires = [
   "delta_worker",
   "echo_collector",
 ]
-lazy = false
+lazy = "$DISABLED"
 enabled = '{{ gt ((env "TEST_JSON" | b64dec | fromJSON).field |toInt) 20 }}'
 args = [
   "-c",
