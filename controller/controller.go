@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 
-	"github.com/fmotalleb/go-tools/tree"
+	"go.uber.org/zap"
 
 	"github.com/fmotalleb/the-one/config"
 	"github.com/fmotalleb/the-one/logging"
@@ -20,7 +20,6 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	if err != nil {
 		return err
 	}
-	weightServices(rootServices)
 
 	// Compile Templates
 	if err = compileTemplates(cfg, l); err != nil {
@@ -28,12 +27,12 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	}
 
 	for _, svc := range rootServices {
-		svc.TraverseNode(func(s *tree.Node[*config.Service]) {
+		svc.TraverseNode(func(s config.ServiceNode) {
 			s.Data.OnDependChange = func() {
 				if s.Data.GetDependCount() == 1 {
 					executeSvcNode(ctx, s)
 				} else {
-					println(s.Data.String())
+					l.Debug("server requirements unmet", zap.Any("service", s.Data.Name()))
 				}
 			}
 		})
@@ -45,7 +44,7 @@ func Boot(ctx context.Context, cfg *config.Config) error {
 	return nil
 }
 
-func executeSvcNode(ctx context.Context, svc *tree.Node[*config.Service]) {
+func executeSvcNode(ctx context.Context, svc config.ServiceNode) {
 	s := svc.Data
 	proc := process.New(s)
 	go proc.Execute(ctx)
@@ -53,13 +52,4 @@ func executeSvcNode(ctx context.Context, svc *tree.Node[*config.Service]) {
 		proc.WaitForHealthy()
 		svc.Traverse(config.ReduceDependCount)
 	}()
-}
-
-func weightServices(rootServices []*tree.Node[*config.Service]) {
-	for _, root := range rootServices {
-		weightServices(root.Children())
-		if root.Data.GetDependCount() == 0 {
-			root.Traverse(config.IncreaseDependCount)
-		}
-	}
 }
