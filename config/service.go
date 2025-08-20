@@ -43,7 +43,7 @@ type Service struct {
 
 	// WorkingDir defines the working directory for the service process.
 	// If unset, it defaults to the current working directory of the init system.
-	WorkingDir string `mapstructure:"working_dir,omitempty" yaml:"working_dir" validate:"workingdir"`
+	WorkingDir string `mapstructure:"working_dir,omitempty" yaml:"working_dir" validate:"workdir"`
 
 	// ProcessCount specifies how many instances of the executable to run.
 	// Defaults to 1 if not set.

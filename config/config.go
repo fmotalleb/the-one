@@ -19,7 +19,7 @@ func (c *Config) Validate() error {
 		validator.WithRequiredStructEnabled(),
 		validator.WithPrivateFieldValidation(),
 	)
-	_ = validate.RegisterValidation("workingdir", workingDirValidator)
+	_ = validate.RegisterValidation("workdir", workingDirValidator)
 	return validate.Struct(c)
 }
 
