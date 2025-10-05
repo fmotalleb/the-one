@@ -12,12 +12,12 @@ type Template struct {
 	SourceDirectory string `mapstructure:"source,omitempty" yaml:"source" validate:"required"`
 
 	// TargetDirectory where template files after compiling should be placed in.
-	// defaults to [SourceDirectory].
+	// This field is required.
 	TargetDirectory string `mapstructure:"destination,omitempty" yaml:"destination" validate:"required"`
 
 	// Extension of template files (will be removed after compile)
-	// defaults to [DefaultTemplateExtension]
-	Extension string `mapstructure:"extension,omitempty" yaml:"extension"`
+	// defaults to `.template`
+	Extension string `mapstructure:"extension,omitempty" yaml:"extension" default:".template"`
 
 	// Enabled specifies whether the template should be applied or not.
 	// If false, the template directory will be ignored.
@@ -25,19 +25,19 @@ type Template struct {
 	Enabled bool `mapstructure:"enabled,omitempty" yaml:"enabled" default:"true"`
 
 	// OverWrite target file if exists.
-	// defaults to [DefaultTemplateOverWrite]
+	// defaults to `true`
 	OverWrite bool `mapstructure:"overwrite,omitempty" yaml:"overwrite" default:"true"`
 
 	// FileMod of target file that is created.
-	// defaults to [DefaultTemplateFileMod]
+	// defaults to `0o644`
 	FileMod uint32 `mapstructure:"chmod,omitempty" yaml:"chmod" default:"0o644"`
 
 	// DirMod of target directories that may get created during process.
-	// defaults to [DefaultTemplateDirMod]
+	// defaults to `0o755`
 	DirMod uint32 `mapstructure:"dir_chmod,omitempty" yaml:"dir_chmod" default:"0o755"`
 
 	// Fatal if true will deny the execution of the services.
-	// defaults to [DefaultTemplateFatality]
+	// defaults to `true`
 	IsFatal bool `mapstructure:"is_fatal,omitempty" yaml:"is_fatal" default:"true"`
 }
 

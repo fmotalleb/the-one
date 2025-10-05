@@ -9,12 +9,6 @@ const (
 	DefaultRestartDelayMax   = time.Second * 16
 	DefaultServiceType       = OngoingService
 	DefaultProcessCount      = 1
-
-	DefaultTemplateExtension = ".template"
-	DefaultTemplateOverWrite = true
-	DefaultTemplateFileMod   = 0o644
-	DefaultTemplateDirMod    = 0o755
-	DefaultTemplateFatality  = true
 )
 
 var (

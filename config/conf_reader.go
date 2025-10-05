@@ -6,7 +6,6 @@ import (
 
 	"github.com/fmotalleb/go-tools/config"
 	"github.com/fmotalleb/go-tools/decoder"
-	"github.com/fmotalleb/go-tools/decoder/hooks"
 	"github.com/fmotalleb/go-tools/defaulter"
 	"github.com/fmotalleb/go-tools/log"
 	"github.com/fmotalleb/go-tools/template"
@@ -14,12 +13,13 @@ import (
 
 func Parse(ctx context.Context, dst *Config, path string) error {
 	ctx = log.WithLogger(ctx, log.Of(ctx).Named("config.Parse"))
+
+	// hooks.RegisterHook(template.StringTemplateEvaluate())
 	cfg, err := config.ReadAndMergeConfig(ctx, path)
 	if err != nil {
 		return fmt.Errorf("failed to read and merge configs: %w", err)
 	}
-	hooks.RegisterHook(template.StringTemplateEvaluate())
-	decoder, err := decoder.Build(dst)
+	decoder, err := decoder.Build(dst, template.StringTemplateEvaluate())
 	if err != nil {
 		return fmt.Errorf("create decoder: %w", err)
 	}
