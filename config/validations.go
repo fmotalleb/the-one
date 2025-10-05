@@ -6,7 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// Custom validator function
+// Custom validator function.
 func workingDirValidator(fl validator.FieldLevel) bool {
 	dir := fl.Field().String()
 	if dir == "" {

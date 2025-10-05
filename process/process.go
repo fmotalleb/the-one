@@ -42,16 +42,11 @@ func (p *Process) Execute(ctx context.Context) error {
 	l := log.Of(ctx).Named("process.Execute")
 
 	l.Warn(p.name, zap.String("state", "online"))
-	if err := retry.Do(ctx, p.retry, func(ctx context.Context) error {
-		return nil
-	}); err != nil {
-		l.Fatal("command execution failed after required amount of retries", zap.Error(err))
-	}
-	select {}
-	return nil
+	err := retry.Do(ctx, p.retry, p.spawnProcess)
+	return err
 }
 
-func (p *Process) spawnProcess() error {
+func (p *Process) spawnProcess(ctx context.Context) error {
 	return nil
 }
 

@@ -9,9 +9,9 @@ import (
 type ServiceNode = *tree.Node[*Service]
 
 type Config struct {
-	Services  []*Service     `mapstructure:"services,omitempty" validate:"dive,required"`
-	Templates []Template     `mapstructure:"templates,omitempty" validate:"dive,required"`
-	Contacts  []ContactPoint `mapstructure:"contacts,omitempty" validate:"dive,required"`
+	Services  []*Service     `mapstructure:"services,omitempty" validate:"dive"`
+	Templates []Template     `mapstructure:"templates,omitempty" validate:"dive"`
+	Contacts  []ContactPoint `mapstructure:"contacts,omitempty" validate:"dive"`
 }
 
 func (c *Config) Validate() error {
