@@ -13,14 +13,14 @@ import (
 
 func RenderTemplates(t *config.Template) error {
 	emptyVars := map[string]any{}
-	if !t.IsEnabled() {
+	if !t.Enabled {
 		return nil
 	}
 
-	sourceDir := t.GetSourceDirectory()
-	targetDir := t.GetFinalDirectory()
-	extension := t.GetExtension()
-	overwrite := t.ShouldOverwrite()
+	sourceDir := t.SourceDirectory
+	targetDir := t.TargetDirectory
+	extension := t.Extension
+	overwrite := t.OverWrite
 
 	if extension != "" && !strings.HasPrefix(extension, ".") {
 		extension = "." + extension

@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"cmp"
 	"errors"
 	"strings"
 
 	"github.com/nikoksr/notify"
 	"github.com/nikoksr/notify/service/mail"
+
+	"github.com/fmotalleb/go-tools/ptrcmp"
 
 	"github.com/fmotalleb/the-one/config"
 )
@@ -21,24 +22,16 @@ func emailHandler(cfg config.ContactPoint) (notify.Notifier, error) {
 	}
 	smtpHost := *cfg.SMTPHost
 
-	smtpHostName := cmp.Or(*cfg.SMTPHostName, strings.Split(smtpHost, ":")[0])
-	smtpUser := *cfg.SMTPUser.Unwrap()
-	smtpPass := *cfg.SMTPPass.Unwrap()
-	smtpFrom := cfg.SMTPFrom.UnwrapOr(smtpUser)
-	smtpReceivers := make([]string, len(cfg.SMTPReceivers))
-	for index, i := range cfg.SMTPReceivers {
-		smtpReceivers[index] = *i.Unwrap()
+	smtpHostName := ptrcmp.Or(cfg.SMTPHostName, strings.Split(smtpHost, ":")[0])
+	if cfg.SMTPUser == nil || cfg.SMTPPass == nil || cfg.SMTPReceivers == nil || len(*cfg.SMTPReceivers) == 0 {
+		return nil, errors.New("missing required SMTP parameters")
 	}
-
-	if len(smtpReceivers) == 0 {
-		return nil, errors.New("email host was set but missing smtp_receivers")
-	}
+	smtpUser := *cfg.SMTPUser
+	smtpPass := *cfg.SMTPPass
+	smtpFrom := ptrcmp.Or(cfg.SMTPFrom, smtpUser)
+	smtpReceivers := *cfg.SMTPReceivers
 
 	handler := mail.New(smtpFrom, smtpHost)
-	// url, err := url.Parse(smtpHost)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	handler.AuthenticateSMTP("", smtpUser, smtpPass, smtpHostName)
 

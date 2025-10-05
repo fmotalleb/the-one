@@ -52,6 +52,7 @@ func (p *Process) Execute(ctx context.Context) error {
 }
 
 func (p *Process) spawnProcess() error {
+	return nil
 }
 
 func (p *Process) WaitForHealthy() error {
