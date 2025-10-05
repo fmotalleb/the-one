@@ -61,7 +61,6 @@ containers that require a simple init system.`,
 		if err := cfg.Validate(); err != nil {
 			return err
 		}
-		ctx = log.WithNewEnvLoggerForced(ctx)
 		return controller.Boot(ctx, cfg)
 	},
 }
