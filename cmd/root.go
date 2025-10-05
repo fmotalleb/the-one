@@ -22,11 +22,9 @@ import (
 	"github.com/fmotalleb/go-tools/git"
 	"github.com/fmotalleb/go-tools/log"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 
 	"github.com/fmotalleb/the-one/config"
 	"github.com/fmotalleb/the-one/controller"
-	"github.com/fmotalleb/the-one/logging"
 	"github.com/fmotalleb/the-one/system"
 )
 
@@ -43,31 +41,26 @@ containers that require a simple init system.`,
 		if err != nil {
 			return err
 		}
-		var l *zap.Logger
-		if l, err = buildLogger(isVerbose); err != nil {
-			return err
+		if isVerbose {
+			log.SetDebugDefaults()
 		}
-		logging.SetRootLogger(l)
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, _ []string) error {
+		ctx := system.NewSystemContext()
+		ctx = log.WithNewEnvLoggerForced(ctx)
 		cfgFile, err := cmd.Flags().GetString("config")
-		if err != nil {
-			return err
-		}
-		isVerbose, err := cmd.Flags().GetBool("verbose")
 		if err != nil {
 			return err
 		}
 
 		cfg := new(config.Config)
-		if err := config.Parse(cfg, cfgFile, isVerbose); err != nil {
+		if err := config.Parse(ctx, cfg, cfgFile); err != nil {
 			return err
 		}
 		if err := cfg.Validate(); err != nil {
 			return err
 		}
-		ctx := system.NewSystemContext()
 		ctx = log.WithNewEnvLoggerForced(ctx)
 		return controller.Boot(ctx, cfg)
 	},
@@ -96,14 +89,4 @@ func init() {
 		false,
 		"enable verbose development logger instead of JSON",
 	)
-}
-
-func buildLogger(isDebug bool) (*zap.Logger, error) {
-	if isDebug {
-		log.SetDebugDefaults()
-	}
-	b := log.
-		NewBuilder().
-		FromEnv()
-	return b.Build()
 }

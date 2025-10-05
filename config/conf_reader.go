@@ -9,22 +9,10 @@ import (
 	"github.com/fmotalleb/go-tools/decoder/hooks"
 	"github.com/fmotalleb/go-tools/log"
 	"github.com/fmotalleb/go-tools/template"
-	"go.uber.org/zap/zapcore"
 )
 
-func Parse(dst *Config, path string, debug bool) error {
-	ctx := context.TODO()
-	if debug {
-		ctx = log.WithNewEnvLoggerForced(
-			ctx,
-			func(b *log.Builder) *log.Builder {
-				return b.
-					LevelValue(zapcore.DebugLevel).
-					Name("config").
-					Development(true)
-			},
-		)
-	}
+func Parse(ctx context.Context, dst *Config, path string) error {
+	ctx = log.WithLogger(ctx, log.Of(ctx).Named("config.Parse"))
 	cfg, err := config.ReadAndMergeConfig(ctx, path)
 	if err != nil {
 		return fmt.Errorf("failed to read and merge configs: %w", err)

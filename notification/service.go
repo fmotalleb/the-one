@@ -6,20 +6,21 @@ import (
 	"github.com/nikoksr/notify"
 	"go.uber.org/zap"
 
+	"github.com/fmotalleb/go-tools/log"
+
+	"github.com/maniartech/signals"
+
 	"github.com/fmotalleb/the-one/config"
-	"github.com/fmotalleb/the-one/logging"
 	"github.com/fmotalleb/the-one/notification/handlers"
 )
 
-var log = logging.LazyLogger("notification")
-
 type Service struct {
 	handlers map[string][]notify.Notifier
-	bus      chan Notification
+	bus      signals.Signal[Notification]
 }
 
-func New(cfg config.Config) (*Service, error) {
-	log := log().Named("New")
+func New(ctx context.Context, cfg config.Config) (*Service, error) {
+	log := log.Of(ctx).Named("notification.New")
 	log.Info("Initializing Kernel")
 
 	hb := map[string][]notify.Notifier{}
@@ -44,20 +45,18 @@ func New(cfg config.Config) (*Service, error) {
 
 	service := new(Service)
 	service.handlers = hb
-	service.bus = make(chan Notification)
+	service.bus = signals.New[Notification]()
 	log.Info("Kernel initialized successfully")
 	go service.initWorker()
 	return service, nil
 }
 
 func (k *Service) initWorker() {
-	for n := range k.bus {
-		go k.handleNotification(n)
-	}
+	k.bus.AddListener(k.handleNotification)
 }
 
-func (k *Service) handleNotification(n Notification) {
-	log := log().Named("Handle")
+func (k *Service) handleNotification(ctx context.Context, n Notification) {
+	log := log.Of(ctx).Named("Handle")
 	log.Debug("handling notification", zap.String("subject", n.Subject), zap.Strings("contacts", n.ContactPoints))
 
 	for _, name := range n.ContactPoints {
@@ -90,10 +89,11 @@ func (k *Service) Process(
 	contactsPoints []string,
 	subject, message string,
 ) {
-	k.bus <- Notification{
+	n := Notification{
 		Ctx:           ctx,
 		ContactPoints: contactsPoints,
 		Subject:       subject,
 		Message:       message,
 	}
+	k.bus.Emit(ctx, n)
 }

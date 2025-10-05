@@ -11,8 +11,9 @@ tool (
 
 require (
 	github.com/alecthomas/assert/v2 v2.11.0
-	github.com/fmotalleb/go-tools v0.1.42
-	github.com/go-playground/validator/v10 v10.26.0
+	github.com/fmotalleb/go-tools v0.1.43
+	github.com/go-playground/validator/v10 v10.27.0
+	github.com/maniartech/signals v1.3.1
 	github.com/mitchellh/mapstructure v1.5.1-0.20231216201459-8508981c8b6c
 	github.com/nikoksr/notify v1.3.0
 	github.com/spf13/cobra v1.9.1
