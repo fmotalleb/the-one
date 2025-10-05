@@ -11,11 +11,11 @@ import (
 
 func compileTemplates(cfg *config.Config, l *zap.Logger) error {
 	for _, t := range cfg.Templates {
-		tl := l.With(zap.String("src", t.GetSourceDirectory()))
+		tl := l.With(zap.String("src", t.SourceDirectory))
 		tl.Debug(
 			"rendering template directory",
 		)
-		if err := renderer.RenderTemplates(&t); err != nil && t.GetIsFatal() {
+		if err := renderer.RenderTemplates(&t); err != nil && t.IsFatal {
 			tl.Error(
 				"failed to render templates",
 				zap.Error(err),

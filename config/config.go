@@ -44,7 +44,7 @@ func treeFilter(n ServiceNode) bool {
 	if n.Data.Lazy && len(n.Children()) == 0 {
 		return false
 	}
-	if !n.Data.Enabled.UnwrapOr(true) {
+	if !n.Data.Enabled {
 		return false
 	}
 	return true

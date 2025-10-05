@@ -7,6 +7,7 @@ import (
 	"github.com/fmotalleb/go-tools/config"
 	"github.com/fmotalleb/go-tools/decoder"
 	"github.com/fmotalleb/go-tools/decoder/hooks"
+	"github.com/fmotalleb/go-tools/defaulter"
 	"github.com/fmotalleb/go-tools/log"
 	"github.com/fmotalleb/go-tools/template"
 )
@@ -26,6 +27,6 @@ func Parse(ctx context.Context, dst *Config, path string) error {
 	if err := decoder.Decode(cfg); err != nil {
 		return fmt.Errorf("decode: %w", err)
 	}
-
+	defaulter.ApplyDefaults(dst, dst)
 	return nil
 }

@@ -2,17 +2,15 @@ package config
 
 import (
 	"time"
-
-	"github.com/fmotalleb/the-one/types/option"
 )
 
 type HealthCheckConfig struct {
-	Type          string                          `mapstructure:"type,omitempty" yaml:"type"`       // "http", "tcp", "cmd"
-	Address       option.OptionalT[string]        `mapstructure:"address,omitempty" yaml:"address"` // for http/tcp
-	Command       []option.Optional[string]       `mapstructure:"command,omitempty" yaml:"command"` // for cmd
-	ResultMatcher option.OptionalT[string]        `mapstructure:"output_matcher,omitempty" yaml:"output_matcher"`
-	Interval      option.OptionalT[time.Duration] `mapstructure:"interval,omitempty" yaml:"interval"`
-	Timeout       option.OptionalT[time.Duration] `mapstructure:"timeout,omitempty" yaml:"timeout"`
-	Retries       option.OptionalT[int]           `mapstructure:"retries,omitempty" yaml:"retries"`
-	OkExitCodes   []option.OptionalT[int]         `mapstructure:"ok_exit_codes,omitempty" yaml:"ok_exit_codes"`
+	Type          string         `mapstructure:"type,omitempty" yaml:"type"`       // "http", "tcp", "cmd"
+	Address       *string        `mapstructure:"address,omitempty" yaml:"address"` // for http/tcp
+	Command       *[]string      `mapstructure:"command,omitempty" yaml:"command"` // for cmd
+	ResultMatcher *string        `mapstructure:"output_matcher,omitempty" yaml:"output_matcher"`
+	Interval      *time.Duration `mapstructure:"interval,omitempty" yaml:"interval"`
+	Timeout       *time.Duration `mapstructure:"timeout,omitempty" yaml:"timeout"`
+	Retries       *int           `mapstructure:"retries,omitempty" yaml:"retries"`
+	OkExitCodes   *[]int         `mapstructure:"ok_exit_codes,omitempty" yaml:"ok_exit_codes"`
 }

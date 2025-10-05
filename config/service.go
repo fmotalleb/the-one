@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/fmotalleb/go-tools/writer"
-
-	"github.com/fmotalleb/the-one/types/option"
 )
 
 // Service represents a single service definition in the system,
@@ -20,8 +18,7 @@ type Service struct {
 
 	// Enabled specifies whether the service is in the service tree or not.
 	// If false, the service will be ignored.
-	// TODO: switch with custom default true bool replacement
-	Enabled option.OptionalT[bool] `mapstructure:"enabled,omitempty" yaml:"enabled"`
+	Enabled bool `mapstructure:"enabled,omitempty" default:"true" yaml:"enabled"`
 
 	// An absolute path to executable binary.
 	// This field is required.
@@ -49,12 +46,12 @@ type Service struct {
 	// Defaults to 1 if not set.
 	ProcessCount int `mapstructure:"process_count,omitempty" yaml:"process_count"`
 
-	// Restart holds the configuration for automatic restarts on failure.
+	// Retry holds the configuration for automatic restarts on failure.
 	// If unset, will use default restart behavior:
 	// - Min Delay: 1s
 	// - Max Delay: 15s
 	// - Count: None
-	Restart RestartConfig `mapstructure:"restart,omitempty" yaml:"restart"`
+	Retry RetryConfig `mapstructure:"restart,omitempty" yaml:"restart"`
 
 	// Timeout is the maximum time allowed for starting or stopping the process.
 	// A zero or unset value means no timeout is enforced.
@@ -119,7 +116,7 @@ func (s *Service) GetProcessCount() int {
 	return DefaultProcessCount
 }
 
-func (s *Service) GetRestart() RestartConfig {
+func (s *Service) GetRestart() RetryConfig {
 	return DefaultRestartConfig
 }
 

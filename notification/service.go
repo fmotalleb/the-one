@@ -25,7 +25,7 @@ func New(ctx context.Context, cfg config.Config) (*Service, error) {
 
 	hb := map[string][]notify.Notifier{}
 	for _, c := range cfg.Contacts {
-		name := *c.Name.Unwrap()
+		name := *c.Name
 		log.Debug("Processing contact", zap.String("name", name))
 
 		services, err := handlers.FindHandler(c)

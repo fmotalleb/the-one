@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"cmp"
 	"errors"
 	"strings"
 
@@ -15,12 +16,12 @@ func init() {
 }
 
 func emailHandler(cfg config.ContactPoint) (notify.Notifier, error) {
-	if cfg.SMTPHost.IsNone() {
+	if cfg.SMTPHost == nil {
 		return nil, nil
 	}
-	smtpHost := *cfg.SMTPHost.Unwrap()
+	smtpHost := *cfg.SMTPHost
 
-	smtpHostName := cfg.SMTPHostName.UnwrapOr(strings.Split(smtpHost, ":")[0])
+	smtpHostName := cmp.Or(*cfg.SMTPHostName, strings.Split(smtpHost, ":")[0])
 	smtpUser := *cfg.SMTPUser.Unwrap()
 	smtpPass := *cfg.SMTPPass.Unwrap()
 	smtpFrom := cfg.SMTPFrom.UnwrapOr(smtpUser)
